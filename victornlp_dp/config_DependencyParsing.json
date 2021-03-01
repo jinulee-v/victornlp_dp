@@ -1,0 +1,47 @@
+{
+  "language": {
+    "Korean": {
+      "corpus": {
+        "train": "corpus/VictorNLP_DP_kor(Modu)_train.json",
+        "test": "corpus/VictorNLP_DP_kor(Modu)_test.json",
+        "labels": "corpus/VictorNLP_DP_kor(Modu)_labels.json",
+        "train_dev_ratio": 0.9
+      },
+      "embedding": ["EmbeddingBERT_kor"],
+      "parse": {
+        "head_initial": 0,
+        "head_final": 1,
+        "allow_projective": 0,
+        "beam_size": 10
+      }
+    }
+  },
+  "embedding": {
+    "EmbeddingBERT_kor": {
+    }
+  },
+  "parser": {
+    "LeftToRightParser": {
+      "encoder": {
+        "num_layers": 3,
+        "dropout": 0.2
+      },
+      "decoder": {
+        "num_layers": 2,
+        "dropout": 0.2
+      },
+      "hidden_size": 512,
+      "arc_size": 128,
+      "type_size": 64
+    }
+  },
+  "train": {
+    "epoch": 100,
+    "batch_size": 32,
+    "loss_fn": "loss_XBCE",
+    "parse_fn": "parse_beam",
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "device": "cuda:0"
+  }
+}
