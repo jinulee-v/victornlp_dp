@@ -89,7 +89,6 @@ def main():
     parser.train()
     
     iter = tqdm(train_loader)
-    # torch.set_printoptions(profile='full')
     for i, batch in enumerate(iter):
       optimizer.zero_grad()
       loss = loss_fn(parser, batch)

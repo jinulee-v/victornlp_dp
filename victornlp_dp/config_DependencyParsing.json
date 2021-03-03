@@ -38,7 +38,7 @@
   "train": {
     "epoch": 100,
     "batch_size": 32,
-    "loss_fn": "loss_XBCE",
+    "loss_fn": "loss_LH",
     "parse_fn": "parse_beam",
     "optimizer": "Adam",
     "learning_rate": 0.001,

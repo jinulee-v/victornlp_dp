@@ -1,4 +1,7 @@
+__init__.py
+config_DependencyParsing.json
 setup.py
+train.py
 model/__init__.py
 model/attention.py
 model/embedding.py
