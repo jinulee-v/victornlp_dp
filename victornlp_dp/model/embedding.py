@@ -10,7 +10,7 @@ Requirements:
   self.embed_size
   forward(self, inputs)
     @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
-    @return output Tensor(batch, length, self.embed_size)
+    @return output Tensor(batch, length+1, self.embed_size). length+1 refers to the virtual root.
 """
 
 import torch
