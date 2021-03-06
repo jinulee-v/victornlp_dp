@@ -10,8 +10,8 @@
       "embedding": ["EmbeddingBERT_kor"],
       "parse": {
         "head_initial": 0,
-        "head_final": 1,
-        "allow_projective": 0,
+        "head_final": 0,
+        "allow_projective": 1,
         "beam_size": 10
       }
     }
@@ -33,13 +33,22 @@
       "hidden_size": 512,
       "arc_size": 128,
       "type_size": 64
+    },
+    "DeepBiaffineParser": {
+      "encoder": {
+        "num_layers": 3,
+        "dropout": 0.2
+      },
+      "hidden_size": 512,
+      "arc_size": 128,
+      "type_size": 64
     }
   },
   "train": {
     "epoch": 100,
     "batch_size": 32,
-    "loss_fn": "loss_LH",
-    "parse_fn": "parse_beam",
+    "loss_fn": "loss_XBCE",
+    "parse_fn": "parse_MST",
     "optimizer": "Adam",
     "learning_rate": 0.001,
     "device": "cuda:0"

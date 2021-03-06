@@ -21,7 +21,7 @@ from .tools.analyze import *
 # FIXME replace this hard-coded vars to cmd line args.
 config_path = 'victornlp_dp/config_DependencyParsing.json'
 language = 'Korean'
-parser_model = 'LeftToRightParser'
+parser_model = 'DeepBiaffineParser'
 
 def main():
   """
@@ -94,6 +94,9 @@ def main():
       loss = loss_fn(parser, batch)
       loss.backward()
       optimizer.step()
+      if i == 200:
+        iter.close()
+        break
     
     # Early stopping
     if dev_dataset:

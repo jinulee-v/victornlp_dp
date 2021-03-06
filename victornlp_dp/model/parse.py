@@ -234,7 +234,7 @@ def _parse_MST_Eisner(parser, inputs, config):
   
   for i, input in enumerate(inputs):
     num_words = input['word_count']
-    scores = arc_attention[i, 0, :num_words, :num_words].transpose(0, 1)
+    scores = arc_attention[i, 0, :num_words+1, :num_words+1].transpose(0, 1)
 
     # Initialize CKY table.
     complete = torch.zeros([num_words+1, num_words+1, 2]).to(device)  # s, t, direction (right=1).
