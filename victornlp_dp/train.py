@@ -94,9 +94,6 @@ def main():
       loss = loss_fn(parser, batch)
       loss.backward()
       optimizer.step()
-      if i == 200:
-        iter.close()
-        break
     
     # Early stopping
     if dev_dataset:
@@ -110,6 +107,7 @@ def main():
         cnt += len(batch)
         loss += float(loss_fn(parser, batch)) * len(batch)
       print('Dev loss:', loss/cnt)
+    
     
     # Accuracy
     print()
