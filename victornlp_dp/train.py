@@ -12,7 +12,9 @@ from torch.utils.data import DataLoader, random_split
 from torch.optim import *
 
 from .preprocessing.corpus import VictorNLPDataset, preprocessor_DependencyParsing
-from .model.embedding import *
+
+from .victornlp_embedding.bert_embeddings import *
+
 from .model.model import *
 from .model.loss import *
 from .model.parse import *
