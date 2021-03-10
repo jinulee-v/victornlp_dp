@@ -1,3 +1,3 @@
-[submodule "victornlp_dp/victornlp-embedding"]
-	path = victornlp_dp/victornlp-embedding
-	url = https://jinulee-v:coral0306!@github.com/jinulee-v/victornlp-embedding.git
+[submodule "victornlp_dp/victornlp_embedding"]
+	path = victornlp_dp/victornlp_embedding
+	url = https://jinulee-v:coral0306!@github.com/jinulee-v/victornlp_embedding.git
