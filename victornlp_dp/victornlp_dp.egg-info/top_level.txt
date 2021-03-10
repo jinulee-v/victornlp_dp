@@ -1,3 +1,4 @@
 model
 preprocessing
 tools
+victornlp-embedding
