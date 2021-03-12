@@ -13,7 +13,7 @@ from torch.optim import *
 
 from .preprocessing.corpus import VictorNLPDataset, preprocessor_DependencyParsing
 
-from .victornlp_embedding.bert_embeddings import *
+from .victornlp_utils.embedding.bert_embeddings import *
 
 from .model.model import *
 from .model.loss import *

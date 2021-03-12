@@ -7,10 +7,14 @@ import os
 import json
 from torch.utils.data import random_split
 
+from konlpy.tag import Mecab
+
 def modu_dp_to_victornlp(modu_file, train_file, test_file, labels_file):
   
   modu = json.load(modu_file)
   victornlp = []
+  
+  mecab = Mecab()
   
   labels = []
   for doc in modu['document']:
@@ -36,9 +40,9 @@ def modu_dp_to_victornlp(modu_file, train_file, test_file, labels_file):
  
   split = (int(0.9*len(victornlp)), len(victornlp)-int(0.9*len(victornlp)))
   train, test = tuple(random_split(victornlp, split))
-  json.dump(list(train), train_file)
-  json.dump(list(test), test_file)
-  json.dump(labels, labels_file)
+  json.dump(list(train), train_file, indent=4)
+  json.dump(list(test), test_file, indent=4)
+  json.dump(labels, labels_file, indent=4)
 
 
 if __name__ == '__main__':

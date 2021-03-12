@@ -12,8 +12,6 @@ preprocessing/corpus.py
 preprocessing/reformatting.py
 tools/__init__.py
 tools/analyze.py
-victornlp-embedding/__init__.py
-victornlp-embedding/bert_embeddings.py
 victornlp_dp.egg-info/PKG-INFO
 victornlp_dp.egg-info/SOURCES.txt
 victornlp_dp.egg-info/dependency_links.txt

@@ -18,6 +18,17 @@
   },
   "embedding": {
     "EmbeddingBERT_kor": {
+    },
+    "EmbeddingGloVe_kor": {
+      "file_directory": "data/EmbeddingGloVe_kor.json",
+      "key": "pos",
+      "from_pretrained": 1,
+      "train": 0
+    },
+    "EmbeddingPoS_kor": {
+      "file_directory": "data/EmbeddingPoS_kor.json",
+      "from_pretrained": 0,
+      "train": 1
     }
   },
   "parser": {
