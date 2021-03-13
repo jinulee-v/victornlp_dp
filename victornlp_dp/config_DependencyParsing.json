@@ -29,6 +29,7 @@
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
       "key": "pos_tag",
       "from_pretrained": 0,
+      "embed_size": 100,
       "train": 1
     }
   },
