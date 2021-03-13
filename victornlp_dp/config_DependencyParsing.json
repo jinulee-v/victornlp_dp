@@ -7,7 +7,7 @@
         "labels": "corpus/VictorNLP_DP_kor(Modu)_labels.json",
         "train_dev_ratio": 0.9
       },
-      "embedding": ["EmbeddingBERT_kor"],
+      "embedding": ["EmbeddingBERT_kor", "EmbeddingPoS_kor"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
@@ -20,13 +20,14 @@
     "EmbeddingBERT_kor": {
     },
     "EmbeddingGloVe_kor": {
-      "file_directory": "data/EmbeddingGloVe_kor.json",
-      "key": "pos",
+      "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_kor.json",
+      "key": "joined",
       "from_pretrained": 1,
       "train": 0
     },
     "EmbeddingPoS_kor": {
-      "file_directory": "data/EmbeddingPoS_kor.json",
+      "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
+      "key": "pos_tag",
       "from_pretrained": 0,
       "train": 1
     }

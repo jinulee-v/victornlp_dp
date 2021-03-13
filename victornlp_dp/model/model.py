@@ -28,7 +28,7 @@ class LeftToRightParser(nn.Module):
     self.hidden_size = config['hidden_size']
 
     # Embedding layer
-    self.embeddings = embeddings
+    self.embeddings = nn.ParameterList([nn.Parameter(embedding) for embedding in embeddings])
     input_size = 0
     for embedding in embeddings:
       input_size += embedding.embed_size
