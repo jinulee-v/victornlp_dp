@@ -57,8 +57,7 @@ def preprocessor_DependencyParsing(inputs):
   """
   for input in inputs:
      assert input['text']
-     # assert input['pos']
-     # assert len(input['text'].split()) == len(input['pos'])
-     input['word_count'] = len(input['text'].split())
+     assert input['pos']
+     assert len(input['text'].split()) == len(input['pos'])
     
   return inputs

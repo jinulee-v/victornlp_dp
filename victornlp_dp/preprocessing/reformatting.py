@@ -7,14 +7,12 @@ import os
 import json
 from torch.utils.data import random_split
 
-from konlpy.tag import Mecab
+from ..victornlp_utils.pos_tagger.pos_tagger import *
 
 def modu_dp_to_victornlp(modu_file, train_file, test_file, labels_file):
   
   modu = json.load(modu_file)
   victornlp = []
-  
-  mecab = Mecab()
   
   labels = []
   for doc in modu['document']:
@@ -22,6 +20,7 @@ def modu_dp_to_victornlp(modu_file, train_file, test_file, labels_file):
       sent.pop('id', None)
       sent['text'] = sent['form']
       sent.pop('form', None)
+      sent['word_count'] = len(sent['text'].split())
       sent['dependency'] = sent['DP']
       sent.pop('DP', None)
       for arc in sent['dependency']:
@@ -34,15 +33,18 @@ def modu_dp_to_victornlp(modu_file, train_file, test_file, labels_file):
         if arc['head'] == -1:
           arc['head'] = 0
       victornlp.append(sent)
+  pos_tag_kor(victornlp)
   labels.sort()
  
   print('data count: ', len(victornlp))
+  
+  print(json.dumps(victornlp[0], indent=4, ensure_ascii=False))
  
   split = (int(0.9*len(victornlp)), len(victornlp)-int(0.9*len(victornlp)))
   train, test = tuple(random_split(victornlp, split))
-  json.dump(list(train), train_file, indent=4)
-  json.dump(list(test), test_file, indent=4)
-  json.dump(labels, labels_file, indent=4)
+  json.dump(list(train), train_file, indent=4, ensure_ascii = False)
+  json.dump(list(test), test_file, indent=4, ensure_ascii = False)
+  json.dump(labels, labels_file, indent=4, ensure_ascii = False)
 
 
 if __name__ == '__main__':
