@@ -18,19 +18,30 @@
   },
   "embedding": {
     "EmbeddingBERT_kor": {
+        "special_tokens": {
+          "bos": "<bos>"
+        }
     },
     "EmbeddingGloVe_kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_kor.json",
       "key": "joined",
       "from_pretrained": 1,
-      "train": 0
+      "train": 0,
+      "special_tokens": {
+        "unk": "<unk>",
+        "bos": "<bos>"
+      }
     },
     "EmbeddingPoS_kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
       "key": "pos_tag",
       "from_pretrained": 0,
       "embed_size": 100,
-      "train": 1
+      "train": 1,
+      "special_tokens": {
+        "unk": "<unk>",
+        "bos": "<bos>"
+      }
     }
   },
   "parser": {
