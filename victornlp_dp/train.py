@@ -5,6 +5,9 @@ Script for training the dependency parser.
 import os, sys
 import json
 from tqdm import tqdm
+import logging
+from datetime import datetime
+import argparse
 
 import torch
 import torch.nn as nn
@@ -21,29 +24,85 @@ from .model.loss import *
 from .model.parse import *
 from .tools.analyze import *
 
-# FIXME replace this hard-coded vars to cmd line args.
-config_path = 'victornlp_dp/config_DependencyParsing.json'
-language = 'Korean'
-parser_model = 'DeepBiaffineParser'
+def parse_cmd_args(train_config) :
+  parser = argparse.ArgumentParser(description='Process some integers.')
+  parser.add_argument('model', choices=[fn for fn in globals().keys() if fn.endswith('Parser')], help='parser model. Choose parser name from default config file.')
+  parser.add_argument('language', type=str, help='language. Choose language name from default config file.')
+  parser.add_argument('epoch', type=int, help='training epochs')
+  parser.add_argument('batch_size', type=int, help='batch size for training')
+  parser.add_argument('loss_fn', choices=[fn for fn in globals().keys() if fn.startswith('loss_')], help='loss functions')
+  parser.add_argument('parse_fn', choices=[fn for fn in globals().keys() if fn.startswith('parse__')], help='loss functions')
+  parser.add_argument('parse_fn', type=str, help='optimizer. Choose class name from torch.optim')
+  parser.add_argument('learning_rate', type=float, help='learning rate')
+  parser.add_argument('device', type=str, help='device. Follows the torch.device format')
+  
+  args = parser.parse_args
+  for arg in vars(args):
+    train_config[arg] = getattr(args, arg)
+  
+  return train_config
 
 def main():
   """
   Training routine.
   """
-  torch.cuda.empty_cache()
   
   # Load configuration file
   config = None
+  config_path = 'victornlp_dp/config_DependencyParsing.json'
   with open(config_path) as config_file:
     config = json.load(config_file)
   assert config
   
-  language_config = config['language'][language]
-  embedding_config = config['embedding']
-  parser_config = config['parser'][parser_model]
-  train_config = config['train']
+  train_config = parse_cmd_args(config['train'] if 'train' in config else {})
+  language_config = config['language'][train_config['language']]
+  embedding_config = {name:conf for name, conf in config['embedding'].items() if name in language_config['embedding']}
+  parser_config = config['parser'][train_config['model']]
+  
+
+  # Set frequent constant variables
+  language = train_config['language']
+  parser_model = train_config['model']
+
+  now = datetime.now()
+  now = now.strftime(u'%Y%m%d %H:%M:%S')
+  title = train_config['title'] if 'title' in train_config else now + ' ' + language + ' ' + parser_model
+  train_config['title'] = title
+
+  # Extract only required features for clarity
+  config = {
+    'language': {
+      language: language_config
+    },
+    'embedding': embedding_config,
+    'parser': {
+      parser_model: parser_config
+    },
+    'train': train_config
+  }
+
+  # Directory for logging, config & model storage
+  os.makedirs('models/' + title)
+
+  formatter = logging.Formatter(fmt="%(asctime)s %(message)s")
+
+  fileHandler = logging.FileHandler(filename='models/{}/{}.log'.format(title, now), encoding='utf-8')
+  fileHandler.setFormatter(formatter)
+  streamHandler = logging.StreamHandler()
+  streamHandler.setFormatter(formatter)
+  logger = logging.getLogger()
+  logger.addHandler(fileHandler)
+  logger.addHandler(streamHandler)
+  logger.setLevel(logging.INFO)
+
+  logger.info(title)
+
+  logger.info('\n' + json.dumps(config, indent=4))
+  with open('models/' + title + '/config.json', 'w', encoding='UTF-8') as f:
+    json.dump(config, f, indent=4)
   
   # Load corpus
+  logger.info('Preparing data...')
   train_path = language_config['corpus']['train']
   test_path = language_config['corpus']['test']
   labels_path = language_config['corpus']['labels']
@@ -56,7 +115,7 @@ def main():
     test_dataset = VictorNLPDataset(json.load(test_corpus_file),  [preprocessor_DependencyParsing])
   with open(labels_path) as type_label_file:
     type_label = json.load(type_label_file)
-  
+
   # Split train/dev datasets
   if train_dev_ratio < 1.:
     split = random_split(train_dataset, [int(len(train_dataset) * train_dev_ratio), len(train_dataset) - int(len(train_dataset)*train_dev_ratio)])
@@ -70,8 +129,10 @@ def main():
   if dev_dataset:
     dev_loader = DataLoader(dev_dataset, train_config['batch_size'], shuffle=False, collate_fn=VictorNLPDataset.collate_fn)
   test_loader = DataLoader(test_dataset, train_config['batch_size'], shuffle=False, collate_fn=VictorNLPDataset.collate_fn)
+  logger.info('done\n')
   
   # Create parser module
+  logger.info('Preparing models and optimizers...')
   device = torch.device(train_config['device'])
   embeddings = [globals()[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
   parser = globals()[parser_model](embeddings, type_label, parser_config)
@@ -81,14 +142,15 @@ def main():
   loss_fn = globals()[train_config['loss_fn']]
   optimizer = globals()[train_config['optimizer']](parser.parameters(), train_config['learning_rate'])
   parse_fn = globals()[train_config['parse_fn']]
+  logger.info('done\n')
   
   # Training
   for epoch in range(1, train_config['epoch']+1):
-    print('-'*40)
-    print('Epoch:', epoch)
+    logger.info('-'*40)
+    logger.info('Epoch:', epoch)
     
-    print()
-    print('Train')
+    logger.info('')
+    logger.info('Train')
     parser.train()
     
     iter = tqdm(train_loader)
@@ -100,8 +162,8 @@ def main():
     
     # Early stopping
     if dev_dataset:
-      print()
-      print('Early stopping')
+      logger.info('')
+      logger.info('Early stopping')
       
       parser.eval()
       loss = 0
@@ -109,25 +171,22 @@ def main():
       for batch in tqdm(dev_loader):
         cnt += len(batch)
         loss += float(loss_fn(parser, batch)) * len(batch)
-      print('Dev loss:', loss/cnt)
+      logger.info('Dev loss:', loss/cnt)
     
     
     # Accuracy
-    print()
-    print('Accuracy')
+    logger.info('')
+    logger.info('Accuracy')
     
     parser.eval()
     for batch in tqdm(test_loader): 
       # Call by reference modifies the original batch
       parse_fn(parser, batch, language_config['parse']) 
     
-    print(accuracy(test_dataset))
-    print('-'*40)
-    print()
+    logger.info(accuracy(test_dataset))
+    logger.info('-'*40)
+    logger.info('')
 
   
 if __name__ == '__main__':
-  # Change working directory to project root
-  if os.getcwd().endswith('victornlp_dp'):
-    os.chdir('..') 
   main()

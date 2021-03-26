@@ -1,2 +1,4 @@
 corpus/
+models/
 victornlp_dp/victornlp_dp.egg-info/
+__pycache__

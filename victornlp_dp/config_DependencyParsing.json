@@ -7,7 +7,7 @@
         "labels": "corpus/VictorNLP_DP_kor(Modu)_labels.json",
         "train_dev_ratio": 0.9
       },
-      "embedding": ["EmbeddingBERT_kor", "EmbeddingPoS_kor"],
+      "embedding": ["EmbeddingPoS_kor"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
@@ -69,10 +69,12 @@
     }
   },
   "train": {
-    "epoch": 100,
-    "batch_size": 32,
+    "language": "Korean",
+    "model": "DeepBiaffineParser",
     "loss_fn": "loss_XBCE",
     "parse_fn": "parse_MST",
+    "epoch": 100,
+    "batch_size": 32,
     "optimizer": "Adam",
     "learning_rate": 0.001,
     "device": "cuda:0"
