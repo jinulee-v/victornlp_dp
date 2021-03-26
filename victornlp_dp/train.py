@@ -14,7 +14,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 from torch.optim import *
 
-from .preprocessing.corpus import VictorNLPDataset, preprocessor_DependencyParsing
+from .victornlp_utils.corpora.corpus import VictorNLPDataset, preprocessor_DependencyParsing
 
 from .victornlp_utils.embedding.bert_embeddings import *
 from .victornlp_utils.embedding.dict_embeddings import *
@@ -32,7 +32,7 @@ def parse_cmd_args(train_config) :
   parser.add_argument('batch_size', type=int, help='batch size for training')
   parser.add_argument('loss_fn', choices=[fn for fn in globals().keys() if fn.startswith('loss_')], help='loss functions')
   parser.add_argument('parse_fn', choices=[fn for fn in globals().keys() if fn.startswith('parse__')], help='loss functions')
-  parser.add_argument('parse_fn', type=str, help='optimizer. Choose class name from torch.optim')
+  parser.add_argument('optimizer', type=str, help='optimizer. Choose class name from torch.optim')
   parser.add_argument('learning_rate', type=float, help='learning rate')
   parser.add_argument('device', type=str, help='device. Follows the torch.device format')
   
@@ -147,7 +147,7 @@ def main():
   # Training
   for epoch in range(1, train_config['epoch']+1):
     logger.info('-'*40)
-    logger.info('Epoch:', epoch)
+    logger.info('Epoch: {}', epoch)
     
     logger.info('')
     logger.info('Train')
