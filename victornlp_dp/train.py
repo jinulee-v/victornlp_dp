@@ -19,6 +19,8 @@ from .victornlp_utils.corpora.corpus import VictorNLPDataset, preprocessor_Depen
 from .victornlp_utils.embedding.bert_embeddings import *
 from .victornlp_utils.embedding.dict_embeddings import *
 
+from .victornlp_utils.utils.early_stopping import EarlyStopping
+
 from .model.model import *
 from .model.loss import *
 from .model.parse import *
@@ -142,12 +144,17 @@ def main():
   loss_fn = globals()[train_config['loss_fn']]
   optimizer = globals()[train_config['optimizer']](parser.parameters(), train_config['learning_rate'])
   parse_fn = globals()[train_config['parse_fn']]
+
+  # Early Stopping settings
+  if dev_dataset:
+    es_config = train_config['early_stopping']
+    early_stopper = EarlyStopping(es_config['patience'], es_config['eps'], es_config['maximize'])
   logger.info('done\n')
   
   # Training
   for epoch in range(1, train_config['epoch']+1):
     logger.info('-'*40)
-    logger.info('Epoch: {}', epoch)
+    logger.info('Epoch: %d', epoch)
     
     logger.info('')
     logger.info('Train')
@@ -160,10 +167,10 @@ def main():
       loss.backward()
       optimizer.step()
     
-    # Early stopping
+    # Validation
     if dev_dataset:
       logger.info('')
-      logger.info('Early stopping')
+      logger.info('Validation')
       
       parser.eval()
       loss = 0
@@ -172,7 +179,8 @@ def main():
         cnt += len(batch)
         loss += float(loss_fn(parser, batch)) * len(batch)
       logger.info('Dev loss:', loss/cnt)
-    
+      if early_stopper(epoch, loss/cnt, model, 'models/' + title + '/model_epoch{}.pt'):
+        break
     
     # Accuracy
     logger.info('')
@@ -186,6 +194,9 @@ def main():
     logger.info(accuracy(test_dataset))
     logger.info('-'*40)
     logger.info('')
+  
+  logger.info('Training completed.')
+  logger.info('Check {} for logs, configurations, and the trained model file.'.format('models/' + title))
 
   
 if __name__ == '__main__':

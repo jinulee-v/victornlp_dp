@@ -7,7 +7,7 @@
         "labels": "corpus/VictorNLP_DP_kor(Modu)_labels.json",
         "train_dev_ratio": 0.9
       },
-      "embedding": ["EmbeddingPoS_kor"],
+      "embedding": ["EmbeddingBERTWordPhr_kor", "EmbeddingPoSWordPhr_kor"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
@@ -17,12 +17,12 @@
     }
   },
   "embedding": {
-    "EmbeddingBERT_kor": {
+    "EmbeddingBERTWordPhr_kor": {
         "special_tokens": {
           "bos": "<bos>"
         }
     },
-    "EmbeddingGloVe_kor": {
+    "EmbeddingGloVeWordPhr_kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_kor.json",
       "key": "joined",
       "from_pretrained": 1,
@@ -32,7 +32,7 @@
         "bos": "<bos>"
       }
     },
-    "EmbeddingPoS_kor": {
+    "EmbeddingPoSWordPhr_kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
       "key": "pos_tag",
       "from_pretrained": 0,
@@ -77,6 +77,11 @@
     "batch_size": 32,
     "optimizer": "Adam",
     "learning_rate": 0.001,
-    "device": "cuda:0"
+    "device": "cuda:0",
+    "early_stopping": {
+      "patience": 3,
+      "eps": 0.0,
+      "maximize": 0
+    }
   }
 }
