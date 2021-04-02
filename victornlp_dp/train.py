@@ -14,7 +14,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 from torch.optim import *
 
-from .victornlp_utils.corpora.corpus import VictorNLPDataset, preprocessor_DependencyParsing
+from .victornlp_utils.corpora.dataset import VictorNLPDataset, preprocessor_DependencyParsing
 
 from .victornlp_utils.embedding.bert_embeddings import *
 from .victornlp_utils.embedding.dict_embeddings import *
