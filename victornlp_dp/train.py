@@ -178,8 +178,8 @@ def main():
       for batch in tqdm(dev_loader):
         cnt += len(batch)
         loss += float(loss_fn(parser, batch)) * len(batch)
-      logger.info('Dev loss:', loss/cnt)
-      if early_stopper(epoch, loss/cnt, model, 'models/' + title + '/model_epoch{}.pt'):
+      logger.info('Dev loss: %f', loss/cnt)
+      if early_stopper(epoch, loss/cnt, parser, 'models/' + title + '/model.pt'):
         break
     
     # Accuracy
