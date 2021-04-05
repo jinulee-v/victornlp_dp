@@ -26,21 +26,22 @@ from .model.loss import *
 from .model.parse import *
 from .tools.analyze import *
 
-def parse_cmd_args(train_config) :
+def argparse_cmd_args(train_config) :
   parser = argparse.ArgumentParser(description='Process some integers.')
-  parser.add_argument('model', choices=[fn for fn in globals().keys() if fn.endswith('Parser')], help='parser model. Choose parser name from default config file.')
-  parser.add_argument('language', type=str, help='language. Choose language name from default config file.')
-  parser.add_argument('epoch', type=int, help='training epochs')
-  parser.add_argument('batch_size', type=int, help='batch size for training')
-  parser.add_argument('loss_fn', choices=[fn for fn in globals().keys() if fn.startswith('loss_')], help='loss functions')
-  parser.add_argument('parse_fn', choices=[fn for fn in globals().keys() if fn.startswith('parse__')], help='loss functions')
-  parser.add_argument('optimizer', type=str, help='optimizer. Choose class name from torch.optim')
-  parser.add_argument('learning_rate', type=float, help='learning rate')
-  parser.add_argument('device', type=str, help='device. Follows the torch.device format')
+  parser.add_argument('--model', choices=[fn for fn in globals().keys() if fn.endswith('Parser')], help='parser model. Choose parser name from default config file.')
+  parser.add_argument('--language', type=str, help='language. Choose language name from default config file.')
+  parser.add_argument('--epoch', type=int, help='training epochs')
+  parser.add_argument('--batch_size', type=int, help='batch size for training')
+  parser.add_argument('--loss_fn', choices=[fn for fn in globals().keys() if fn.startswith('loss_')], help='loss functions')
+  parser.add_argument('--parse_fn', choices=[fn for fn in globals().keys() if fn.startswith('parse_')], help='parse functions')
+  parser.add_argument('--optimizer', type=str, help='optimizer. Choose class name from torch.optim')
+  parser.add_argument('--learning_rate', type=float, help='learning rate')
+  parser.add_argument('--device', type=str, help='device. Follows the torch.device format')
   
-  args = parser.parse_args
+  args = parser.parse_args()
   for arg in vars(args):
-    train_config[arg] = getattr(args, arg)
+    if getattr(args, arg):
+      train_config[arg] = getattr(args, arg)
   
   return train_config
 
@@ -56,7 +57,7 @@ def main():
     config = json.load(config_file)
   assert config
   
-  train_config = parse_cmd_args(config['train'] if 'train' in config else {})
+  train_config = argparse_cmd_args(config['train'] if 'train' in config else {})
   language_config = config['language'][train_config['language']]
   embedding_config = {name:conf for name, conf in config['embedding'].items() if name in language_config['embedding']}
   parser_config = config['parser'][train_config['model']]
@@ -172,28 +173,30 @@ def main():
       logger.info('')
       logger.info('Validation')
       
-      parser.eval()
-      loss = 0
-      cnt = 0
-      for batch in tqdm(dev_loader):
-        cnt += len(batch)
-        loss += float(loss_fn(parser, batch)) * len(batch)
-      logger.info('Dev loss: %f', loss/cnt)
-      if early_stopper(epoch, loss/cnt, parser, 'models/' + title + '/model.pt'):
-        break
+      with torch.no_grad():
+        parser.eval()
+        loss = 0
+        cnt = 0
+        for batch in tqdm(dev_loader):
+          cnt += len(batch)
+          loss += float(loss_fn(parser, batch)) * len(batch)
+        logger.info('Dev loss: %f', loss/cnt)
+        if early_stopper(epoch, loss/cnt, parser, 'models/' + title + '/model.pt'):
+          break
     
     # Accuracy
     logger.info('')
     logger.info('Accuracy')
     
-    parser.eval()
-    for batch in tqdm(test_loader): 
-      # Call by reference modifies the original batch
-      parse_fn(parser, batch, language_config['parse']) 
-    
-    logger.info(accuracy(test_dataset))
-    logger.info('-'*40)
-    logger.info('')
+    with torch.no_grad():
+      parser.eval()
+      for batch in tqdm(test_loader): 
+        # Call by reference modifies the original batch
+        parse_fn(parser, batch, language_config['parse']) 
+      
+      logger.info(accuracy(test_dataset))
+      logger.info('-'*40)
+      logger.info('')
   
   logger.info('Training completed.')
   logger.info('Check {} for logs, configurations, and the trained model file.'.format('models/' + title))
