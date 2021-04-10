@@ -2,12 +2,27 @@
   "language": {
     "Korean": {
       "corpus": {
-        "train": "corpus/VictorNLP_DP_kor(Modu)_train.json",
-        "test": "corpus/VictorNLP_DP_kor(Modu)_test.json",
-        "labels": "corpus/VictorNLP_DP_kor(Modu)_labels.json",
-        "train_dev_ratio": 0.9
+        "train": "corpus/VictorNLP_kor(Modu)_train.json",
+        "dev": "corpus/VictorNLP_kor(Modu)_dev.json",
+        "test": "corpus/VictorNLP_kor(Modu)_test.json",
+        "labels": "corpus/VictorNLP_kor(Modu)_labels.json"
       },
       "embedding": ["EmbeddingBERTWordPhr_kor", "EmbeddingPoSWordPhr_kor"],
+      "parse": {
+        "head_initial": 0,
+        "head_final": 0,
+        "allow_projective": 0,
+        "beam_size": 10
+      }
+    },
+    "English": {
+      "corpus": {
+        "train": "corpus/VictorNLP_eng(PTB)_train.json",
+        "dev": "corpus/VictorNLP_eng(PTB)_dev.json",
+        "test": "corpus/VictorNLP_eng(PTB)_test.json",
+        "labels": "corpus/VictorNLP_eng(PTB)_labels.json"
+      },
+      "embedding": ["EmbeddingBERT_eng", "EmbeddingPoS_eng"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
@@ -19,18 +34,8 @@
   "embedding": {
     "EmbeddingBERTWordPhr_kor": {
         "special_tokens": {
-          "bos": "<bos>"
+          "bos": "[CLS]"
         }
-    },
-    "EmbeddingGloVeWordPhr_kor": {
-      "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_kor.json",
-      "key": "joined",
-      "from_pretrained": 1,
-      "train": 0,
-      "special_tokens": {
-        "unk": "<unk>",
-        "bos": "<bos>"
-      }
     },
     "EmbeddingPoSWordPhr_kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
@@ -40,7 +45,36 @@
       "train": 1,
       "special_tokens": {
         "unk": "<unk>",
-        "bos": "<bos>"
+        "bos": "<bos>",
+        "pad": "<pad>"
+      }
+    },
+    "EmbeddingBERT_eng": {
+        "special_tokens": {
+          "bos": "[CLS]"
+        }
+    },
+    "EmbeddingPoS_eng": {
+      "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_eng.json",
+      "key": "pos_tag",
+      "from_pretrained": 0,
+      "embed_size": 50,
+      "train": 1,
+      "special_tokens": {
+        "unk": "<unk>",
+        "bos": "<bos>",
+        "pad": "<pad>"
+      }
+    },
+    "EmbeddingGloVe_eng": {
+      "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_eng.json",
+      "key": "text",
+      "from_pretrained": 1,
+      "train": 0,
+      "special_tokens": {
+        "unk": "<unk>",
+        "bos": "<bos>",
+        "pad": "<pad>"
       }
     }
   },
@@ -69,7 +103,7 @@
     }
   },
   "train": {
-    "language": "Korean",
+    "language": "English",
     "model": "DeepBiaffineParser",
     "loss_fn": "loss_XBCE",
     "parse_fn": "parse_MST",

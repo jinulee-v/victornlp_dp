@@ -1,4 +1,6 @@
 """
+@module train
+
 Script for training the dependency parser.
 """
 
@@ -27,7 +29,7 @@ from .model.parse import *
 from .tools.analyze import *
 
 def argparse_cmd_args(train_config) :
-  parser = argparse.ArgumentParser(description='Process some integers.')
+  parser = argparse.ArgumentParser(description='Train the depedency parser model.')
   parser.add_argument('--model', choices=[fn for fn in globals().keys() if fn.endswith('Parser')], help='parser model. Choose parser name from default config file.')
   parser.add_argument('--language', type=str, help='language. Choose language name from default config file.')
   parser.add_argument('--epoch', type=int, help='training epochs')
@@ -89,7 +91,7 @@ def main():
 
   formatter = logging.Formatter(fmt="%(asctime)s %(message)s")
 
-  fileHandler = logging.FileHandler(filename='models/{}/{}.log'.format(title, now), encoding='utf-8')
+  fileHandler = logging.FileHandler(filename='models/{}/train_{}.log'.format(title, now), encoding='utf-8')
   fileHandler.setFormatter(formatter)
   streamHandler = logging.StreamHandler()
   streamHandler.setFormatter(formatter)
@@ -107,9 +109,10 @@ def main():
   # Load corpus
   logger.info('Preparing data...')
   train_path = language_config['corpus']['train']
+  dev_path = language_config['corpus']['dev'] if 'dev' in language_config['corpus'] else None
   test_path = language_config['corpus']['test']
   labels_path = language_config['corpus']['labels']
-  train_dev_ratio = language_config['corpus']['train_dev_ratio']
+  train_dev_ratio = language_config['corpus']['train_dev_ratio'] if 'train_dev_ratio' in language_config['corpus'] else None
   
   train_dataset, dev_dataset, test_dataset, type_label = None, None, None, None
   with open(train_path) as train_corpus_file:
@@ -117,15 +120,19 @@ def main():
   with open(test_path) as test_corpus_file:
     test_dataset = VictorNLPDataset(json.load(test_corpus_file),  [preprocessor_DependencyParsing])
   with open(labels_path) as type_label_file:
-    type_label = json.load(type_label_file)
+    type_label = json.load(type_label_file)['dp_labels']
 
-  # Split train/dev datasets
-  if train_dev_ratio < 1.:
-    split = random_split(train_dataset, [int(len(train_dataset) * train_dev_ratio), len(train_dataset) - int(len(train_dataset)*train_dev_ratio)])
-    train_dataset = split[0]
-    dev_dataset = split[1]
+  # Split dev datasets
+  if dev_path:
+    with open(dev_path) as dev_corpus_file:
+      dev_dataset = VictorNLPDataset(json.load(dev_corpus_file), [preprocessor_DependencyParsing])
   else:
-    dev_dataset = VictorNLPDataset({})
+    if train_dev_ratio and train_dev_ratio < 1.:
+      split = random_split(train_dataset, [int(len(train_dataset) * train_dev_ratio), len(train_dataset) - int(len(train_dataset)*train_dev_ratio)])
+      train_dataset = split[0]
+      dev_dataset = split[1]
+    else:
+      dev_dataset = VictorNLPDataset({})
   
   # Prepare DataLoader instances
   train_loader = DataLoader(train_dataset, train_config['batch_size'], shuffle=True, collate_fn=VictorNLPDataset.collate_fn)
@@ -194,7 +201,7 @@ def main():
         # Call by reference modifies the original batch
         parse_fn(parser, batch, language_config['parse']) 
       
-      logger.info(accuracy(test_dataset))
+      logger.info(analyze_accuracy(test_dataset))
       logger.info('-'*40)
       logger.info('')
   
