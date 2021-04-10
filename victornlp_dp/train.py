@@ -16,7 +16,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 from torch.optim import *
 
-from .victornlp_utils.corpora.dataset import VictorNLPDataset, preprocessor_DependencyParsing
+from .victornlp_utils.corpora.dataset import *
 
 from .victornlp_utils.embedding.bert_embeddings import *
 from .victornlp_utils.embedding.dict_embeddings import *
@@ -69,8 +69,7 @@ def main():
   language = train_config['language']
   parser_model = train_config['model']
 
-  now = datetime.now()
-  now = now.strftime(u'%Y%m%d %H:%M:%S')
+  now = datetime.now().strftime(u'%Y%m%d %H:%M:%S')
   title = train_config['title'] if 'title' in train_config else now + ' ' + language + ' ' + parser_model
   train_config['title'] = title
 
@@ -116,16 +115,16 @@ def main():
   
   train_dataset, dev_dataset, test_dataset, type_label = None, None, None, None
   with open(train_path) as train_corpus_file:
-    train_dataset = VictorNLPDataset(json.load(train_corpus_file), [preprocessor_DependencyParsing])
+    train_dataset = VictorNLPDataset(json.load(train_corpus_file), [preprocessor_WordCount, preprocessor_DependencyParsing])
   with open(test_path) as test_corpus_file:
-    test_dataset = VictorNLPDataset(json.load(test_corpus_file),  [preprocessor_DependencyParsing])
+    test_dataset = VictorNLPDataset(json.load(test_corpus_file),  [preprocessor_WordCount, preprocessor_DependencyParsing])
   with open(labels_path) as type_label_file:
     type_label = json.load(type_label_file)['dp_labels']
 
   # Split dev datasets
   if dev_path:
     with open(dev_path) as dev_corpus_file:
-      dev_dataset = VictorNLPDataset(json.load(dev_corpus_file), [preprocessor_DependencyParsing])
+      dev_dataset = VictorNLPDataset(json.load(dev_corpus_file), [preprocessor_WordCount, preprocessor_DependencyParsing])
   else:
     if train_dev_ratio and train_dev_ratio < 1.:
       split = random_split(train_dataset, [int(len(train_dataset) * train_dev_ratio), len(train_dataset) - int(len(train_dataset)*train_dev_ratio)])

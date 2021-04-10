@@ -3,7 +3,7 @@
 Tools for analyzong the parser behavior such as accuracy().
 """
 
-def accuracy(inputs):
+def analyze_accuracy(inputs):
   """
   Calculates accuracy.
   
