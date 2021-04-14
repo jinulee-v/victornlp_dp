@@ -28,8 +28,9 @@ from .model.loss import *
 from .model.parse import *
 from .tools.analyze import *
 
-def argparse_cmd_args(train_config) :
+def argparse_cmd_args() :
   parser = argparse.ArgumentParser(description='Train the depedency parser model.')
+  parser.add_argument('config_file', type=str, default='victornlp_dp/config_DependencyParsing.json')
   parser.add_argument('--model', choices=[fn for fn in globals().keys() if fn.endswith('Parser')], help='parser model. Choose parser name from default config file.')
   parser.add_argument('--language', type=str, help='language. Choose language name from default config file.')
   parser.add_argument('--epoch', type=int, help='training epochs')
@@ -41,25 +42,26 @@ def argparse_cmd_args(train_config) :
   parser.add_argument('--device', type=str, help='device. Follows the torch.device format')
   
   args = parser.parse_args()
-  for arg in vars(args):
-    if getattr(args, arg):
-      train_config[arg] = getattr(args, arg)
   
-  return train_config
+  return args
 
 def main():
   """
   Training routine.
   """
-  
+  args = argparse_cmd_args()
+
   # Load configuration file
   config = None
-  config_path = 'victornlp_dp/config_DependencyParsing.json'
+  config_path = args.config_file
   with open(config_path) as config_file:
     config = json.load(config_file)
   assert config
   
   train_config = argparse_cmd_args(config['train'] if 'train' in config else {})
+  for arg in vars(args):
+    if getattr(args, arg):
+      train_config[arg] = getattr(args, arg)
   language_config = config['language'][train_config['language']]
   embedding_config = {name:conf for name, conf in config['embedding'].items() if name in language_config['embedding']}
   parser_config = config['parser'][train_config['model']]
