@@ -7,7 +7,7 @@
         "test": "corpus/VictorNLP_kor(Modu)_test.json",
         "labels": "corpus/VictorNLP_kor(Modu)_labels.json"
       },
-      "embedding": ["EmbeddingBERTMorph_kor"],
+      "embedding": ["EmbeddingGloVeWordPhr_kor", "EmbeddingPoSWordPhr_kor"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
