@@ -18,8 +18,7 @@ from torch.optim import *
 
 from .victornlp_utils.corpora.dataset import *
 
-from .victornlp_utils.embedding.bert_embeddings import *
-from .victornlp_utils.embedding.dict_embeddings import *
+from .victornlp_utils.embedding import *
 
 from .victornlp_utils.utils.early_stopping import EarlyStopping
 
@@ -31,12 +30,12 @@ from .tools.analyze import *
 def argparse_cmd_args() :
   parser = argparse.ArgumentParser(description='Train the depedency parser model.')
   parser.add_argument('config_file', type=str, nargs='?', default='victornlp_dp/config_DependencyParsing.json')
-  parser.add_argument('--model', choices=[fn for fn in globals().keys() if fn.endswith('Parser')], help='parser model. Choose parser name from default config file.')
+  parser.add_argument('--model', choices=victornlp_dp_model.values(), help='parser model. Choose parser name from default config file.')
   parser.add_argument('--language', type=str, help='language. Choose language name from default config file.')
   parser.add_argument('--epoch', type=int, help='training epochs')
   parser.add_argument('--batch_size', type=int, help='batch size for training')
-  parser.add_argument('--loss_fn', choices=[fn for fn in globals().keys() if fn.startswith('loss_')], help='loss functions')
-  parser.add_argument('--parse_fn', choices=[fn for fn in globals().keys() if fn.startswith('parse_')], help='parse functions')
+  parser.add_argument('--loss_fn', choices=victornlp_dp_loss_fn.values(), help='loss functions')
+  parser.add_argument('--parse_fn', choices=victornlp_dp_parse_fn.values(), help='parse functions')
   parser.add_argument('--optimizer', type=str, help='optimizer. Choose class name from torch.optim')
   parser.add_argument('--learning_rate', type=float, help='learning rate')
   parser.add_argument('--device', type=str, help='device. Follows the torch.device format')
@@ -145,14 +144,18 @@ def main():
   # Create parser module
   logger.info('Preparing models and optimizers...')
   device = torch.device(train_config['device'])
-  embeddings = [globals()[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
-  parser = globals()[parser_model](embeddings, type_label, parser_config)
+  embeddings = [victornlp_embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
+  parser = victornlp_dp_model[parser_model](embeddings, type_label, parser_config)
   parser = parser.to(device)
   
   # Backpropagation settings
-  loss_fn = globals()[train_config['loss_fn']]
-  optimizer = globals()[train_config['optimizer']](parser.parameters(), train_config['learning_rate'])
-  parse_fn = globals()[train_config['parse_fn']]
+  optimizers = {
+    'Adam': Adam,
+    'Adafactor': Adafactor
+  }
+  loss_fn = victornlp_dp_loss_fn[train_config['loss_fn']]
+  optimizer = optimizers[train_config['optimizer']](parser.parameters(), train_config['learning_rate'])
+  parse_fn = victornlp_dp_parse_fn[train_config['parse_fn']]
 
   # Early Stopping settings
   if dev_dataset:

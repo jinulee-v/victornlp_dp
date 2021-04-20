@@ -1,19 +1,16 @@
 """
-@module loss
-Various loss functions for dependency parsing.
+@module loss_local
+Various locally-scoped loss functions for dependency parsing.
 
-Lee(2020)(available in repository) introduces each loss functions briefly. In the same paper, loss_LH was proved to be most effective for Korean data.
-
-loss_*(parser, inputs)
-  @param parser *Parser object. Refer to 'model.py' for more details.
-  @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
-  
-  @return Loss value.
+Lee(2020) introduces each loss functions briefly. In the same paper, loss_LH was proved to be most effective for Korean data.
 """
 
 import torch
 import torch.nn as nn
 
+from . import register_loss_fn
+
+@register_loss_fn
 def loss_NLL(parser, inputs):
   """
   Negative Log-Likelihood loss function.
@@ -44,7 +41,7 @@ def loss_NLL(parser, inputs):
   
   return -(torch.sum(loss_arc) + torch.sum(loss_type)) / (torch.sum(lengths) - batch_size)
 
-
+@register_loss_fn
 def loss_XBCE(parser, inputs):
   """
   eXpanded Binary Cross Entropy loss function.
@@ -83,7 +80,7 @@ def loss_XBCE(parser, inputs):
   
   return -(loss_arc + loss_type) / (torch.sum(lengths) - batch_size)
   
-  
+@register_loss_fn
 def loss_LH(parser, inputs):
   """
   Local Hinge loss function.
