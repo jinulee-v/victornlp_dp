@@ -33,9 +33,8 @@ from torch.optim import *
 
 from .victornlp_utils.corpora.dataset import *
 
-from .victornlp_utils.embedding.bert_embeddings import *
-from .victornlp_utils.embedding.dict_embeddings import *
-from .victornlp_utils.pos_tagger.pos_tagger import *
+from .victornlp_utils.embedding import *
+from .victornlp_utils.pos_tagger import *
 
 from .victornlp_utils.utils.early_stopping import EarlyStopping
 
@@ -48,7 +47,7 @@ def parse_cmd_arguments():
   parser = argparse.ArgumentParser(description="Evaluate a model or parse raw texts.")
   parser.add_argument('model_dir', type=str, help='Model directory that contains model.pt & config.json.')
   parser.add_argument('--data-file', type=str, help='File that contains VictorNLP format data. default: stdin(only raw texts)')
-  parser.add_argument('-a', '--analyze', type=str, action='append', choices=[fn for fn in globals().keys() if fn.startswith('analyze')])
+  parser.add_argument('-a', '--analyze', type=str, action='append', choices=victornlp_dp_analysis)
   parser.add_argument('--save-result', help='Print VictorNLP-format results to a file.')
 
   args = parser.parse_args()
@@ -101,7 +100,7 @@ def main():
 
   # Prepare evaluation data if file is given
   from_file = bool(args.data_file)
-  pos_tagger = globals()['pos_tag_' + language]
+  pos_tagger = victornlp_pos_tagger['pos_tag_' + language]
   preprocessors = [preprocessor_WordCount, pos_tagger, preprocessor_DependencyParsing]
 
   if from_file:
@@ -119,12 +118,12 @@ def main():
   # Create parser module
   logger.info('Preparing models...')
   device = torch.device(train_config['device'])
-  embeddings = [globals()[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
-  parser = globals()[parser_model](embeddings, type_label, parser_config)
+  embeddings = [victornlp_embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
+  parser = victornlp_dp_model[parser_model](embeddings, type_label, parser_config)
   parser = parser.to(device)
   parser.load_state_dict(torch.load(args.model_dir + '/model.pt'))
 
-  parse_fn = globals()[train_config['parse_fn']]
+  parse_fn = victornlp_dp_parse_fn[train_config['parse_fn']]
 
   # Evaluation
   with torch.no_grad():
@@ -145,7 +144,7 @@ def main():
       # Run analysis functions
       if not args.analyze:
         return
-      analyzers = [globals()[analyzer] for analyzer in args.analyze]
+      analyzers = [victornlp_dp_analysis[analyzer] for analyzer in args.analyze]
       for analyzer in analyzers:
         result = analyzer(dataset)
         stream_logger.info('-'*40)

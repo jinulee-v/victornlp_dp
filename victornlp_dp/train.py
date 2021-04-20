@@ -151,7 +151,7 @@ def main():
   # Backpropagation settings
   optimizers = {
     'Adam': Adam,
-    'Adafactor': Adafactor
+    'Adafactor': AdaFactor
   }
   loss_fn = victornlp_dp_loss_fn[train_config['loss_fn']]
   optimizer = optimizers[train_config['optimizer']](parser.parameters(), train_config['learning_rate'])
