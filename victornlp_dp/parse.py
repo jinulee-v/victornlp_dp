@@ -118,7 +118,7 @@ def main():
   # Create parser module
   logger.info('Preparing models...')
   device = torch.device(train_config['device'])
-  embedding_objs = [embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
+  embedding_objs = [embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in embeddings_list]
   parser = dp_model[parser_model](embedding_objs, type_label, parser_config)
   parser.load_state_dict(torch.load(args.model_dir + '/model.pt'))
   parser = parser.to(device)
@@ -131,7 +131,7 @@ def main():
       # From file data
 
       # Parse and log time
-      before = datetime.now()
+      before = datetime.now4()
       logger.info('Started at...' + before.strftime(u'%Y%m%d %H:%M:%S'))
       for batch in tqdm(loader):
         parse_fn(parser, batch, language_config['parse'])

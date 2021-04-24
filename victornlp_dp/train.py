@@ -69,7 +69,7 @@ def main():
   language_config = config['language'][train_config['language']]
 
   # Command line arguments override basic language configurations
-  embeddings_list = train_config.pop('embedding', None)
+  embeddings_list = train_config['embedding'] if 'embedding' in train_config else None
   if not embeddings_list:
     embeddings_list = language_config['embedding']
 
@@ -160,7 +160,7 @@ def main():
   # Create parser module
   logger.info('Preparing models and optimizers...')
   device = torch.device(train_config['device'])
-  embedding_objs = [embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
+  embedding_objs = [embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in embeddings_list]
   parser = dp_model[parser_model](embedding_objs, type_label, parser_config)
   if args.finetune_model_dir:
     parser.load_state_dict(torch.load(args.finetune_model_dir+ '/model.pt'))
