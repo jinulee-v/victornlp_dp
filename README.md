@@ -6,7 +6,7 @@
 
 Dependency Parsing detects the syntactical relationship between words within a sentence, generating a labeled tree. VictorNLP-DP framework supplies various deep learning DP models like Left-To-Right Parser (Fernandez-Gonzalez, 2019), Deep Biaffine Parser (Dozat, 2018) and more. In-depth description of resources and their implementation details are recorded right here:
 
-[VictorNLP_DP Technical Documentation](https://www.notion.so/jinulee/VictorNLP_DP-daa5e56b078647eaa6988a6797be0bd5)
+[VictorNLP_DP Documentation](https://www.notion.so/jinulee/VictorNLP_DP-daa5e56b078647eaa6988a6797be0bd5)
 
 ### VictorNLP Framework
 
@@ -28,7 +28,11 @@ mkdir corpus model
 pip install -e ./victornlp_dp
 ```
 
-> Note: All commands in this documentation should be executed as the same directory `.` (`.../path/to/repo/victornlp_dp`).
+> Note: All commands in this documentation should be executed in the same directory.
+> 
+> ls 
+>
+> corpus model victornlp_dp
 
 3. Install dependencies.
 
@@ -42,9 +46,9 @@ cd ..
 
 ### Prepare Datasets and pretrained embeddings
 
-#### Corpus
+#### Dataset
 
-- Modu DP corpus (Korean)
+#### Modu DP corpus (Korean)
 
 Since Modu DP corpus is under protection of NIKL, data is not provided by itself. You may acquire license and download **구문 분석 말뭉치(문어)**, **형태 분석 말뭉치(문어)** and **개체명 인식 말뭉치(문어)**, move them(.json) to `./corpus/` and rename as:
 ```
@@ -54,13 +58,17 @@ mv NXDP*.json Modu_DP_raw.json
 mv NXNE*.json Modu_NER_raw.json
 cd ..
 ```
-, and then execute the following command line.
+, and then execute the following command line. Four files will be generated in the `./corpus/`, namely:
+- VictorNLP_kor(Modu)_train.json
+- VictorNLP_kor(Modu)_dev.json
+- VictorNLP_kor(Modu)_test.json
+- VictorNLP_kor(Modu)_labels.json
 
 ```
 python victornlp_dp/victornlp_utils/corpora/transformatting_modu.py 
 ```
 
-- Penn TreeBank (English)
+#### Penn TreeBank (English)
 
 You can download the VictorNLP style corpus file from here. Download all 4 files to `./corpus/`.
 
@@ -74,23 +82,17 @@ Refer to [VictorNLP_Utils documentation](https://github.com/jinulee-v/victornlp_
 
 Add downloaded files to `victornlp_dp/victornlp_utils/data` as instructed.
 
+If the script raises NotFoundError, precautious warnings containing missing dependencies are printed.
+
 ### Train model
 
-This script automatically reads `config_file` and starts training. However, for convenience, overriding configuration file(only `"train"` section) with command line arguments is supported.
+This script automatically reads `config_file` and starts training. However, for convenience, overriding configuration file with command line arguments is supported. However, to reduce command line bizarreness, we only support major hyper-parameters. Details like model hyperparameters(num_layers, dropout, ...) are likely to be modified directly in `victornlp_dp/config.json` or other config files.
 
 ```
-python victornlp_dp.train config_file(default: victornlp_dp/config_DependencyParsing.json)
+python -m victornlp_dp.train
 ```
-Optional Command line arguments:
-- `--model` : LeftToRightParser, DeepBiaffineParser
-- `--language`: English, Korean
-- `--epoch`: integer
-- `--batch_size`: integer
-- `--loss_fn`: loss_CE, loss_XBCE, loss_LH
-- `--parse_fn`: parse_beam, parse_MST
-- `--optimizer`: Any optimizer class from `torch.optim`
-- `--learning_rate`: float
-- `--device`: argument for `torch.device()`. Rather `cpu` or `cuda:N`(N: GPU ID).
+
+Refer to `python -m victornlp_dp.train -h` for more information, and `train.sh` for some demos.
 
 ### Parse & Test model
 
@@ -101,6 +103,6 @@ python victornlp_dp.parse --model-dir ./model/(folder name)
 ```
 
 Optional Command line arguments:
-- `-a`, `--analyze` : `analyze_*`. Can freely select which analyzing functions(`victornlp_dp/tools/analyze.py`) to apply. 
+- `-a`, `--analyze` : Can freely select which analyzing functions(`victornlp_dp/tools/analyze.py`) to apply. Test set requires golden dependencies.
 - `--data-file` : `path/to/input/file`. Load VictorNLP_format .json file to parse. If not provided, parses `stdin` inputs(line by line, PoS automatically tagged).
 - `--save-result` : `path/to/store/parsed_file.json`. Stores parsed result in the designated path.
