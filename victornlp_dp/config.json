@@ -1,13 +1,13 @@
 {
   "language": {
-    "Korean": {
+    "korean": {
       "corpus": {
         "train": "corpus/VictorNLP_kor(Modu)_train.json",
         "dev": "corpus/VictorNLP_kor(Modu)_dev.json",
         "test": "corpus/VictorNLP_kor(Modu)_test.json",
         "labels": "corpus/VictorNLP_kor(Modu)_labels.json"
       },
-      "embedding": ["EmbeddingGloVeWordPhr_kor", "EmbeddingPoSWordPhr_kor"],
+      "embedding": ["glove-wp-kor", "pos-wp-kor"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
@@ -15,14 +15,14 @@
         "beam_size": 10
       }
     },
-    "English": {
+    "english": {
       "corpus": {
         "train": "corpus/VictorNLP_eng(PTB)_train.json",
         "dev": "corpus/VictorNLP_eng(PTB)_dev.json",
         "test": "corpus/VictorNLP_eng(PTB)_test.json",
         "labels": "corpus/VictorNLP_eng(PTB)_labels.json"
       },
-      "embedding": ["EmbeddingBERT_eng", "EmbeddingPoS_eng"],
+      "embedding": ["bert-base-uncased", "pos-eng"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
@@ -32,13 +32,13 @@
     }
   },
   "embedding": {
-    "EmbeddingBERTWordPhr_kor": {
+    "kobert": {
       "train": 0,
       "special_tokens": {
         "bos": "[CLS]"
       }
     },
-    "EmbeddingPoSWordPhr_kor": {
+    "pos-wp-kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
       "key": "pos_tag",
       "from_pretrained": 0,
@@ -50,7 +50,7 @@
         "pad": "<pad>"
       }
     },
-    "EmbeddingGloVeWordPhr_kor": {
+    "glove-wp-kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_kor.json",
       "key": "joined",
       "from_pretrained": 1,
@@ -61,7 +61,7 @@
         "pad": "<BLK>"
       }
     },
-    "EmbeddingBERTMorph_kor": {
+    "etri-korbert": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingBERTMorph_kor",
       "word_phrase": 1,
       "train": 0,
@@ -70,13 +70,13 @@
         "bos": "<bos>"
       }
     },
-    "EmbeddingBERT_eng": {
+    "bert-base-uncased": {
       "train": 0,
       "special_tokens": {
         "bos": "[CLS]"
       }
     },
-    "EmbeddingPoS_eng": {
+    "pos-eng": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_eng.json",
       "key": "pos_tag",
       "from_pretrained": 0,
@@ -88,7 +88,7 @@
         "pad": "<pad>"
       }
     },
-    "EmbeddingGloVe_eng": {
+    "glove-eng": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_eng.json",
       "key": "text",
       "from_pretrained": 1,
@@ -101,7 +101,7 @@
     }
   },
   "parser": {
-    "LeftToRightParser": {
+    "left-to-right-parser": {
       "encoder": {
         "num_layers": 3,
         "dropout": 0.2
@@ -114,7 +114,7 @@
       "arc_size": 128,
       "type_size": 64
     },
-    "DeepBiaffineParser": {
+    "deep-biaff-parser": {
       "encoder": {
         "num_layers": 3,
         "dropout": 0.2
@@ -125,13 +125,13 @@
     }
   },
   "train": {
-    "language": "Korean",
-    "model": "DeepBiaffineParser",
-    "loss_fn": "loss_XBCE",
-    "parse_fn": "parse_MST",
+    "language": "korean",
+    "model": "deep-biaff-parser",
+    "loss_fn": "local-xbce",
+    "parse_fn": "mst",
     "epoch": 100,
-    "batch_size": 32,
-    "optimizer": "Adam",
+    "batch_size": 64,
+    "optimizer": "adam",
     "learning_rate": 0.001,
     "device": "cuda:0",
     "early_stopping": {

@@ -8,10 +8,12 @@ parse_*(parser, inputs, config)
   @param config Dictionary config file accessed with 'parse' key.
 """
 
-def register_parse_fn(fn):
-  if 'victornlp_dp_parse_fn' not in globals():
-    globals()['victornlp_dp_parse_fn'] = {}
-  victornlp_dp_parse_fn[fn.__name__] = fn
+dp_parse_fn = {}
+def register_parse_fn(name):
+  def decorator(fn):
+    dp_parse_fn[name] = fn
+    return fn
+  return decorator
 
 from .parse_greedy import parse_greedy
 from .parse_beam import parse_beam

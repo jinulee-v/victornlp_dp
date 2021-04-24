@@ -10,7 +10,7 @@ import torch.nn as nn
 
 from . import register_loss_fn
 
-@register_loss_fn
+@register_loss_fn('local-nll')
 def loss_NLL(parser, inputs):
   """
   Negative Log-Likelihood loss function.
@@ -41,7 +41,7 @@ def loss_NLL(parser, inputs):
   
   return -(torch.sum(loss_arc) + torch.sum(loss_type)) / (torch.sum(lengths) - batch_size)
 
-@register_loss_fn
+@register_loss_fn('local-xbce')
 def loss_XBCE(parser, inputs):
   """
   eXpanded Binary Cross Entropy loss function.
@@ -80,7 +80,7 @@ def loss_XBCE(parser, inputs):
   
   return -(loss_arc + loss_type) / (torch.sum(lengths) - batch_size)
   
-@register_loss_fn
+@register_loss_fn('local-lh')
 def loss_LH(parser, inputs):
   """
   Local Hinge loss function.

@@ -1,8 +1,9 @@
-def register_model(cls):
-  if 'victornlp_dp_model' not in globals():
-    globals()['victornlp_dp_model'] = {}
-  victornlp_dp_model[cls.__name__] = cls
-  return cls
+dp_model = {}
+def register_model(name):
+  def decorator(cls):
+    dp_model[name] = cls
+    return cls
+  return decorator
 
 from .LeftToRightParser import *
 from .DeepBiaffineParser import *

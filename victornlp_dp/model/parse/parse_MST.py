@@ -13,7 +13,7 @@ import torch.nn as nn
 
 from . import register_parse_fn
 
-@register_parse_fn
+@register_parse_fn('mst')
 def parse_MST(parser, inputs, config):
   """
   Wrapper function for Projective / Nonprojective / Head-Initial/Final MST Algorithms.

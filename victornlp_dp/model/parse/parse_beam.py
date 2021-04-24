@@ -3,7 +3,7 @@ import torch.nn as n
 
 from . import register_parse_fn
 
-@register_parse_fn
+@register_parse_fn('beam')
 def parse_beam(parser, inputs, config):
   """
   Beam search implemented in Stack-Pointer Network(Ma, 2018) and Left-To-Right parser(Fernandez-Gonzalez, 2019).

@@ -10,7 +10,7 @@ from .module import *
 
 from . import register_model
 
-@register_model
+@register_model('left-to-right-parser')
 class LeftToRightParser(nn.Module):
   """
   Left-To-Right parser module.

@@ -9,9 +9,11 @@ loss_*(parser, inputs)
   @return Loss value.
 """
 
-def register_loss_fn(fn):
-  if 'victornlp_dp_loss_fn' not in globals():
-    globals()['victornlp_dp_loss_fn'] = {}
-  victornlp_dp_loss_fn[fn.__name__] = fn
+dp_loss_fn = {}
+def register_loss_fn(name):
+  def decorator(fn):
+    dp_loss_fn[name] = fn
+    return fn
+  return decorator
 
 from .loss_local import loss_NLL, loss_XBCE, loss_LH

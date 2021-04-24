@@ -1,6 +1,8 @@
-def register_analysis(fn):
-  if 'victornlp_dp_analysis' not in globals():
-    globals()['victornlp_dp_analysis'] = {}
-  victornlp_dp_analysis[fn.__name__] = fn
+dp_analysis_fn = {}
+def register_analysis_fn(name):
+  def decorator(fn):
+    dp_analysis_fn[name] = fn
+    return fn
+  return decorator
 
 from .accuracy import *

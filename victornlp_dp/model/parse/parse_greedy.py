@@ -13,7 +13,7 @@ import torch.nn as nn
 
 from . import register_parse_fn
 
-@register_parse_fn
+@register_parse_fn('greedy')
 def parse_greedy(parser, inputs, config):
   """
   Simple argmax parsing. No topologocal restrictions are applied during parsing, thus may generate improper structures. Use for testing.

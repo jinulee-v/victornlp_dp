@@ -18,28 +18,30 @@ from torch.optim import *
 
 from .victornlp_utils.corpora.dataset import *
 
-from .victornlp_utils.embedding import *
+from .victornlp_utils.embedding import embeddings
 
 from .victornlp_utils.utils.early_stopping import EarlyStopping
 
-from .model.model import *
-from .model.loss import *
-from .model.parse import *
-from .tools.analyze import *
+from .model.model import dp_model
+from .model.loss import dp_loss_fn
+from .model.parse import dp_parse_fn
+from .tools.analyze import dp_analysis_fn
 
 def argparse_cmd_args() :
   parser = argparse.ArgumentParser(description='Train the depedency parser model.')
-  parser.add_argument('--finetune-model-dir', type=str, help='Directory to model.pt & config.json subject to finetuning')
   parser.add_argument('--config-file', type=str, default='victornlp_dp/config.json')
-  parser.add_argument('--model', choices=victornlp_dp_model.values(), help='parser model. Choose parser name from default config file.')
-  parser.add_argument('--language', type=str, help='language. Choose language name from default config file.')
+  parser.add_argument('--title', type=str)
+  parser.add_argument('--language', type=str, help='language. Currently supported: {korean, english}')
+  parser.add_argument('--model', choices=dp_model.keys(), help='parser model. Choose parser name from default config file.')
+  parser.add_argument('--embedding', '-e', type=str, choices=embeddings.keys(), nargs='?', action='append', help='Embedding class names.')
+  parser.add_argument('--loss-fn', choices=dp_loss_fn.keys(), help='loss functions')
+  parser.add_argument('--parse-fn', choices=dp_parse_fn.keys(), help='parse functions')
   parser.add_argument('--epoch', type=int, help='training epochs')
-  parser.add_argument('--batch_size', type=int, help='batch size for training')
-  parser.add_argument('--loss_fn', choices=victornlp_dp_loss_fn.values(), help='loss functions')
-  parser.add_argument('--parse_fn', choices=victornlp_dp_parse_fn.values(), help='parse functions')
+  parser.add_argument('--batch-size', type=int, help='batch size for training')
   parser.add_argument('--optimizer', type=str, help='optimizer. Choose class name from torch.optim')
-  parser.add_argument('--learning_rate', type=float, help='learning rate')
+  parser.add_argument('--learning-rate', '--lr', type=float, help='learning rate')
   parser.add_argument('--device', type=str, help='device. Follows the torch.device format')
+  parser.add_argument('--finetune-model-dir', type=str, help='Directory to model.pt & config.json subject to finetuning')
   
   args = parser.parse_args()
   
@@ -61,11 +63,17 @@ def main():
   assert config
   
   train_config = config['train'] if 'train' in config else {}
-  for arg in vars(args):
+  for arg, value in vars(args).items():
     if getattr(args, arg):
-      train_config[arg] = getattr(args, arg)
+      train_config[arg] = value
   language_config = config['language'][train_config['language']]
-  embedding_config = {name:conf for name, conf in config['embedding'].items() if name in language_config['embedding']}
+
+  # Command line arguments override basic language configurations
+  embeddings_list = train_config.pop('embedding', None)
+  if not embeddings_list:
+    embeddings_list = language_config['embedding']
+
+  embedding_config = {name:conf for name, conf in config['embedding'].items() if name in embeddings_list}
   if args.finetune_model_dir:
     for conf in embedding_config.values():
       if 'train' in conf:
@@ -152,20 +160,20 @@ def main():
   # Create parser module
   logger.info('Preparing models and optimizers...')
   device = torch.device(train_config['device'])
-  embeddings = [victornlp_embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
-  parser = victornlp_dp_model[parser_model](embeddings, type_label, parser_config)
+  embedding_objs = [embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
+  parser = dp_model[parser_model](embedding_objs, type_label, parser_config)
   if args.finetune_model_dir:
     parser.load_state_dict(torch.load(args.finetune_model_dir+ '/model.pt'))
   parser = parser.to(device)
   
   # Backpropagation settings
   optimizers = {
-    'Adam': Adam
+    'adam': Adam
   }
-  loss_fn = victornlp_dp_loss_fn[train_config['loss_fn']]
+  loss_fn = dp_loss_fn[train_config['loss_fn']]
   optimizer = optimizers[train_config['optimizer']](parser.parameters(), train_config['learning_rate'])
-  parse_fn = victornlp_dp_parse_fn[train_config['parse_fn']]
-  accuracy = victornlp_dp_analysis['analyze_accuracy']
+  parse_fn = dp_parse_fn[train_config['parse_fn']]
+  accuracy = dp_analysis_fn['accuracy']
 
   # Early Stopping settings
   if dev_dataset:

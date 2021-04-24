@@ -3,9 +3,9 @@
 Tools for analyzong the parser behavior such as accuracy().
 """
 
-from . import register_analysis
+from . import register_analysis_fn
 
-@register_analysis
+@register_analysis_fn('accuracy')
 def analyze_accuracy(inputs):
   """
   Calculates accuracy.

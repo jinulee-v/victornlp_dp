@@ -10,7 +10,7 @@ from .module import *
 
 from . import register_model
 
-@register_model
+@register_model('deep-biaff-parser')
 class DeepBiaffineParser(nn.Module):
   """
   Deep-Biaffine parser module.
