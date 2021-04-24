@@ -120,8 +120,8 @@ def main():
   device = torch.device(train_config['device'])
   embeddings = [victornlp_embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in language_config['embedding']]
   parser = victornlp_dp_model[parser_model](embeddings, type_label, parser_config)
-  parser = parser.to(device)
   parser.load_state_dict(torch.load(args.model_dir + '/model.pt'))
+  parser = parser.to(device)
 
   parse_fn = victornlp_dp_parse_fn[train_config['parse_fn']]
 
@@ -147,7 +147,7 @@ def main():
       analyzers = [victornlp_dp_analysis[analyzer] for analyzer in args.analyze]
       for analyzer in analyzers:
         result = analyzer(dataset)
-        stream_logger.info('-'*40)
+        logger.info('-'*40)
         logger.info(analyzer.__name__.replace('analyze_', ''))
         if isinstance(result, dict):
           # Dictionary results

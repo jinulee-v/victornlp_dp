@@ -33,9 +33,10 @@
   },
   "embedding": {
     "EmbeddingBERTWordPhr_kor": {
-        "special_tokens": {
-          "bos": "[CLS]"
-        }
+      "train": 0,
+      "special_tokens": {
+        "bos": "[CLS]"
+      }
     },
     "EmbeddingPoSWordPhr_kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
@@ -63,15 +64,17 @@
     "EmbeddingBERTMorph_kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingBERTMorph_kor",
       "word_phrase": 1,
+      "train": 0,
       "special_tokens": {
         "unk": "<unk>",
         "bos": "<bos>"
       }
     },
     "EmbeddingBERT_eng": {
-        "special_tokens": {
-          "bos": "[CLS]"
-        }
+      "train": 0,
+      "special_tokens": {
+        "bos": "[CLS]"
+      }
     },
     "EmbeddingPoS_eng": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_eng.json",
