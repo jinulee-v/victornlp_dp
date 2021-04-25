@@ -4,15 +4,6 @@
 
 # Korean parser models
 
-# Korean_DeepBiaffParser_GloVe+PoS
-python -m victornlp_dp.train \
-  --title Korean_DeepBiaffParser_GloVe+PoS \
-  --language korean \
-  --model deep-biaff-parser \
-  -e glove-wp-kor -e pos-wp-kor \
-  --loss-fn local-xbce \
-  --parse-fn mst
-
 # Korean_DeepBiaffParser_KoBERT+PoS
 python -m victornlp_dp.train \
   --title Korean_DeepBiaffParser_KoBERT+PoS \
@@ -49,7 +40,7 @@ python -m victornlp_dp.train \
   --loss-fn local-lh \
   --parse-fn beam
 
-# Korean_LeftToRightParser_GloVe+PoS
+# Korean_LeftToRightParser_KorBERT
 python -m victornlp_dp.train \
   --title Korean_LeftToRightParser_KorBERT \
   --language korean \
@@ -71,7 +62,7 @@ python -m victornlp_dp.train \
   --loss-fn local-xbce \
   --parse-fn mst
 
-# Korean_DeepBiaffParser_KoBERT+PoS
+# English_DeepBiaffParser_BERT+PoS
 python -m victornlp_dp.train \
   --title English_DeepBiaffParser_BERT+PoS \
   --language english \
@@ -89,7 +80,7 @@ python -m victornlp_dp.train \
   --loss-fn local-lh \
   --parse-fn beam
 
-# Korean_LeftToRightParser_KoBERT+PoS
+# English_LeftToRightParser_BERT+PoS
 python -m victornlp_dp.train \
   --title English_LeftToRight_BERT+PoS \
   --language english \
