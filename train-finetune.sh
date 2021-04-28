@@ -11,12 +11,12 @@ python -m victornlp_dp.train \
 # Korean_DeepBiaffParser_KoBERT+PoS
 python -m victornlp_dp.train \
   --finetune-model models/Korean_DeepBiaffParser_KoBERT+PoS \
-  --batch-size 24
+  --batch-size 24 --learning-rate 0.0005
 
 # Korean_DeepBiaffParser_KorBERT
 python -m victornlp_dp.train \
   --finetune-model models/Korean_DeepBiaffParser_KorBERT \
-  --batch-size 24
+  --batch-size 24 --learning-rate 0.0005
 
 # Korean_LeftToRightParser_GloVe+PoS
 python -m victornlp_dp.train \
@@ -25,12 +25,12 @@ python -m victornlp_dp.train \
 # Korean_LeftToRightParser_KoBERT+PoS
 python -m victornlp_dp.train \
   --finetune-model models/Korean_LeftToRightParser_KoBERT+PoS \
-  --batch-size 24
+  --batch-size 24 --learning-rate 0.0005
 
 # Korean_LeftToRightParser_KorBERT
 python -m victornlp_dp.train \
   --finetune-model models/Korean_LeftToRightParser_KorBERT \
-  --batch-size 24
+  --batch-size 24 -learning-rate 0.0005
 
 ###############################################################################
 
@@ -43,7 +43,7 @@ python -m victornlp_dp.train \
 # English_DeepBiaffParser_BERT+PoS
 python -m victornlp_dp.train \
   --finetune-model models/English_DeepBiaffParser_BERT+PoS \
-  --batch-size 24
+  --batch-size 24 --learning-rate 0.0005
 
 # Englsh_LeftToRightParser_GloVe+PoS
 python -m victornlp_dp.train \
@@ -52,4 +52,4 @@ python -m victornlp_dp.train \
 # English_LeftToRightParser_BERT+PoS
 python -m victornlp_dp.train \
   --finetune-model models/English_LeftToRight_BERT+PoS \
-  --batch-size 24
+  --batch-size 24 --learning-rate 0.0005
