@@ -98,7 +98,7 @@ class LeftToRightParser(nn.Module):
     hn = torch.tanh(cn)
     return hn, cn
 
-  def run(self, inputs):
+  def run(self, inputs, lengths=None, mask=None):
     """
     Runs the parser and obtain scores for each possible arc and type.
     
@@ -108,9 +108,13 @@ class LeftToRightParser(nn.Module):
     @return type_attention Tensor(batch, type, length, length)
     """
     batch_size = len(inputs)
-    lengths = torch.zeros(batch_size, dtype=torch.long).detach()
-    for i, input in enumerate(inputs):
-      lengths[i] = input['word_count'] + 1 # DP requires [ROOT] node; index 0 is given
+    if lengths is None:
+      lengths = torch.zeros(batch_size, dtype=torch.long).detach()
+      for i, input in enumerate(inputs):
+        lengths[i] = input['word_count'] + 1 # DP requires [ROOT] node; index 0 is given
+    else:
+      assert lengths.dim()==1 and lengths.size(0) == batch_size
+      lengths = lengths.detach()
 
     # Embedding
     embedded = []
@@ -132,10 +136,14 @@ class LeftToRightParser(nn.Module):
     type_attention = self.type_att(encoder_h_type, decoder_h_type, lengths)
     
     # Masking & log_softmax
-    mask = torch.zeros_like(arc_attention).detach()
-    for i, length in enumerate(lengths):
-      for j in range(1, length):
-        mask[i, 0, j, :length] = 1
+    if mask is None:
+      mask = torch.zeros_like(arc_attention).detach()
+      for i, length in enumerate(lengths):
+        for j in range(1, length):
+          mask[i, 0, j, :length] = 1
+    else:
+      assert mask.size()==arc_attention.size()
+      mask = mask.detach()
   
     arc_attention = arc_attention - ((1-mask) * 100000)
     arc_attention = nn.functional.log_softmax(arc_attention, 3)

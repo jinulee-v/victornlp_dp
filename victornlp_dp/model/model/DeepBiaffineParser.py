@@ -65,14 +65,20 @@ class DeepBiaffineParser(nn.Module):
     
     @param self The object pointer.
     @param inputs List of dictionaries. Refer to 'corpus.py'' for more details.
+    @param lengths Tensor(batch_size). Contains length information, but for default it uses word_count data.
+    @param mask Tensor(batch_size, 1, max_length, max_length). Contains mask information, but for default it uses word_count data
     @return arc_attention Tensor(batch, 1, length, length). arc_attention[i][0][j][k] contains the log(probability) of arc j->k among j->* arcs in batch i.
     @return type_attention Tensor(batch, type, length, length)
     """
     batch_size = len(inputs)
-    lengths = torch.zeros(batch_size, dtype=torch.long).detach()
-    for i, input in enumerate(inputs):
-      lengths[i] = input['word_count'] + 1 # DP requires [ROOT] node; index 0 is given
-
+    if lengths is None:
+      lengths = torch.zeros(batch_size, dtype=torch.long).detach()
+      for i, input in enumerate(inputs):
+        lengths[i] = input['word_count'] + 1 # DP requires [ROOT] node; index 0 is given
+    else:
+      assert lengths.dim()==1 and lengths.size(0) == batch_size
+      lengths = lengths.detach()
+    
     # Embedding
     embedded = []
     for embedding in self.embeddings:
@@ -89,10 +95,14 @@ class DeepBiaffineParser(nn.Module):
     type_attention = self.type_att(encoder_h_type, encoder_h_type, lengths)
     
     # Masking & log_softmax
-    mask = torch.zeros_like(arc_attention).detach()
-    for i, length in enumerate(lengths):
-      for j in range(1, length):
-        mask[i, 0, j, :length] = 1
+    if mask is None:
+      mask = torch.zeros_like(arc_attention).detach()
+      for i, length in enumerate(lengths):
+        for j in range(1, length):
+          mask[i, 0, j, :length] = 1
+    else:
+      assert mask.size()==arc_attention.size()
+      mask = mask.detach()
   
     arc_attention = arc_attention - ((1-mask) * 100000)
     arc_attention = nn.functional.log_softmax(arc_attention, 3)
