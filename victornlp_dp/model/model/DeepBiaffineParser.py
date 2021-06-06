@@ -59,7 +59,7 @@ class DeepBiaffineParser(nn.Module):
     for i, label in enumerate(self.labels):
       self.labels_stoi[label] = i
       
-  def run(self, inputs):
+  def run(self, inputs, lengths=None, mask=None):
     """
     Runs the parser and obtain scores for each possible arc and type.
     
