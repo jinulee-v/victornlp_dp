@@ -50,22 +50,14 @@ cd ..
 
 #### Modu DP corpus (Korean)
 
-Since Modu DP corpus is under protection of NIKL, data is not provided by itself. You may acquire license and download **구문 분석 말뭉치(문어)**, **형태 분석 말뭉치(문어)** and **개체명 인식 말뭉치(문어)**, move them(.json) to `./corpus/` and rename as:
-```
-cd corpus
-mv NXMP*.json Modu_PoS_raw.json
-mv NXDP*.json Modu_DP_raw.json
-mv NXNE*.json Modu_NER_raw.json
-cd ..
-```
-, and then execute the following command line. Four files will be generated in the `./corpus/`, namely:
+Since Modu DP corpus is under protection of NIKL, data is not provided by itself. You may acquire license and download **구문 분석 말뭉치(문어)**, **형태 분석 말뭉치(문어)** and **개체명 인식 말뭉치(문어)**, move them(.json) to `./corpus/` and then execute the following command line. Four files will be generated in the `./corpus/`, namely:
 - VictorNLP_kor(Modu)_train.json
 - VictorNLP_kor(Modu)_dev.json
 - VictorNLP_kor(Modu)_test.json
 - VictorNLP_kor(Modu)_labels.json
 
 ```
-python victornlp_dp/victornlp_utils/corpora/transformatting_modu.py 
+python victornlp_dp/victornlp_utils/corpora/transformatting_modu.py  --file-dir ./corpus --pos (file mame) --dp (file name) --ner (file name)
 ```
 
 #### Penn TreeBank (English)
