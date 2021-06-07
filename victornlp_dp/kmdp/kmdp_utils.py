@@ -6,6 +6,7 @@ Various utilities for KMDP.
 import torch
 
 from .lexicals import label2head
+from ..victornlp_utils.corpora.dataset import register_preprocessors
 
 def generate_kmdp_lengths_mask(inputs, device):
   """
@@ -36,3 +37,12 @@ def generate_kmdp_lengths_mask(inputs, device):
         mask[i, 0, 1:length, i] = 1
   
   return lengths, mask
+
+@register_preprocessors('kmdp')
+def prerocessor_ReplaceKMDP(inputs):
+  for input in inputs:
+    # Force replace dependency as kmdp
+    input['dependency'] = input['kmdp']
+    input.pop('kmdp')
+  
+  return input

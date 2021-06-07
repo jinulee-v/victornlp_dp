@@ -2,29 +2,13 @@
   "language": {
     "korean": {
       "corpus": {
-        "train": "corpus/VictorNLP_kor(Modu)_train.json",
-        "dev": "corpus/VictorNLP_kor(Modu)_dev.json",
-        "test": "corpus/VictorNLP_kor(Modu)_test.json",
-        "labels": "corpus/VictorNLP_kor(Modu)_labels.json"
+        "train": "corpus/VictorNLP_kor(ModuKMDP)_train.json",
+        "dev": "corpus/VictorNLP_kor(ModuKMDP)_dev.json",
+        "test": "corpus/VictorNLP_kor(ModuKMDP)_test.json",
+        "labels": "corpus/VictorNLP_kor(ModuKMDP)_labels.json"
       },
       "embedding": ["glove-wp-kor", "pos-wp-kor"],
-      "preprocessors": ["word-count", "dependency-parsing"],
-      "parse": {
-        "head_initial": 0,
-        "head_final": 0,
-        "allow_projective": 0,
-        "beam_size": 10
-      }
-    },
-    "english": {
-      "corpus": {
-        "train": "corpus/VictorNLP_eng(PTB)_train.json",
-        "dev": "corpus/VictorNLP_eng(PTB)_dev.json",
-        "test": "corpus/VictorNLP_eng(PTB)_test.json",
-        "labels": "corpus/VictorNLP_eng(PTB)_labels.json"
-      },
-      "embedding": ["bert-base-uncased", "pos-eng"],
-      "preprocessors": ["word-count", "dependency-parsing"],
+      "preprocessors": ["word-count", "kmdp"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
@@ -34,12 +18,6 @@
     }
   },
   "embedding": {
-    "kobert": {
-      "train": 0,
-      "special_tokens": {
-        "bos": "[CLS]"
-      }
-    },
     "pos-wp-kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
       "key": "pos_tag",
@@ -65,40 +43,11 @@
     },
     "etri-korbert": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingBERTMorph_kor",
-      "word_phrase": 1,
+      "word_phrase": 0,
       "train": 0,
       "special_tokens": {
         "unk": "<unk>",
         "bos": "<bos>"
-      }
-    },
-    "bert-base-uncased": {
-      "train": 0,
-      "special_tokens": {
-        "bos": "[CLS]"
-      }
-    },
-    "pos-eng": {
-      "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_eng.json",
-      "key": "pos_tag",
-      "from_pretrained": 0,
-      "embed_size": 50,
-      "train": 1,
-      "special_tokens": {
-        "unk": "<unk>",
-        "bos": "<bos>",
-        "pad": "<pad>"
-      }
-    },
-    "glove-eng": {
-      "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_eng.json",
-      "key": "text",
-      "from_pretrained": 1,
-      "train": 0,
-      "special_tokens": {
-        "unk": "<unk>",
-        "bos": "<bos>",
-        "pad": "<pad>"
       }
     }
   },
