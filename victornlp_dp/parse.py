@@ -43,6 +43,8 @@ from .model.loss import dp_losS_fn
 from .model.parse import dp_parse_fn
 from .tools.analyze import dp_analysis_fn
 
+from .kmdp.kmdp_utils import generate_kmdp_lengths_mask
+
 def parse_cmd_arguments():
   parser = argparse.ArgumentParser(description="Evaluate a model or parse raw texts.")
   parser.add_argument('model_dir', type=str, help='Model directory that contains model.pt & config.json.')
@@ -134,7 +136,9 @@ def main():
       before = datetime.now4()
       logger.info('Started at...' + before.strftime(u'%Y%m%d %H:%M:%S'))
       for batch in tqdm(loader):
-        parse_fn(parser, batch, language_config['parse'])
+        lengths, mask = generate_kmdp_lengths_mask(batch, device)
+        # Call by reference modifies the original batch
+        parse_fn(parser, batch, language_config['parse'], lengths=lengths, mask=mask)
       after = datetime.now()
       logger.info('Finished at...' + after.strftime(u'%Y%m%d %H:%M:%S'))
       seconds = (after - before).total_seconds()
@@ -145,7 +149,7 @@ def main():
       if not args.analyze:
         return
       analyzers = {name:dp_analysis_fn[name] for name in args.analyze}
-      for name:analyzer in analyzers:
+      for analyzer in analyzers:
         result = analyzer(dataset)
         logger.info('-'*40)
         logger.info(name)

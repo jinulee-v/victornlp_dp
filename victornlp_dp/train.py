@@ -27,6 +27,8 @@ from .model.loss import dp_loss_fn
 from .model.parse import dp_parse_fn
 from .tools.analyze import dp_analysis_fn
 
+from .kmdp.kmdp_utils import generate_kmdp_lengths_mask
+
 def argparse_cmd_args() :
   parser = argparse.ArgumentParser(description='Train the depedency parser model.')
   parser.add_argument('--config-file', type=str, default='victornlp_dp/config.json')
@@ -192,8 +194,9 @@ def main():
     
     iter = tqdm(train_loader)
     for i, batch in enumerate(iter):
+      lengths, mask = generate_kmdp_lengths_mask(batch, device)
       optimizer.zero_grad()
-      loss = loss_fn(parser, batch)
+      loss = loss_fn(parser, batch, lengths=lengths, mask=mask)
       loss.backward()
       optimizer.step()
     
@@ -207,8 +210,9 @@ def main():
         loss = 0
         cnt = 0
         for batch in tqdm(dev_loader):
+          lengths, mask = generate_kmdp_lengths_mask(batch, device)
           cnt += len(batch)
-          loss += float(loss_fn(parser, batch)) * len(batch)
+          loss += float(loss_fn(parser, batch, lengths=lengths, mask=mask)) * len(batch)
         logger.info('Dev loss: %f', loss/cnt)
         if early_stopper(epoch, loss/cnt, parser, 'models/' + title + '/model.pt'):
           break
@@ -220,8 +224,9 @@ def main():
     with torch.no_grad():
       parser.eval()
       for batch in tqdm(test_loader): 
+        lengths, mask = generate_kmdp_lengths_mask(batch, device)
         # Call by reference modifies the original batch
-        parse_fn(parser, batch, language_config['parse']) 
+        parse_fn(parser, batch, language_config['parse'], lengths=lengths, mask=mask) 
       
       logger.info(accuracy(test_dataset))
       logger.info('-'*40)
