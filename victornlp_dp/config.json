@@ -8,6 +8,7 @@
         "labels": "corpus/VictorNLP_kor(Modu)_labels.json"
       },
       "embedding": ["glove-wp-kor", "pos-wp-kor"],
+      "preprocessors": ["word-count", "dependency-parsing"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,
@@ -23,6 +24,7 @@
         "labels": "corpus/VictorNLP_eng(PTB)_labels.json"
       },
       "embedding": ["bert-base-uncased", "pos-eng"],
+      "preprocessors": ["word-count", "dependency-parsing"],
       "parse": {
         "head_initial": 0,
         "head_final": 0,

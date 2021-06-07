@@ -131,19 +131,20 @@ def main():
   test_path = language_config['corpus']['test']
   labels_path = language_config['corpus']['labels']
   train_dev_ratio = language_config['corpus']['train_dev_ratio'] if 'train_dev_ratio' in language_config['corpus'] else None
+  preprocessors = [dataset_preprocessors[alias] for alias in language_config['preprocessors']]
   
   train_dataset, dev_dataset, test_dataset, type_label = None, None, None, None
   with open(train_path) as train_corpus_file:
-    train_dataset = VictorNLPDataset(json.load(train_corpus_file), [preprocessor_WordCount, preprocessor_DependencyParsing])
+    train_dataset = VictorNLPDataset(json.load(train_corpus_file), preprocessors)
   with open(test_path) as test_corpus_file:
-    test_dataset = VictorNLPDataset(json.load(test_corpus_file),  [preprocessor_WordCount, preprocessor_DependencyParsing])
+    test_dataset = VictorNLPDataset(json.load(test_corpus_file), preprocessors)
   with open(labels_path) as type_label_file:
     type_label = json.load(type_label_file)['dp_labels']
 
   # Split dev datasets
   if dev_path:
     with open(dev_path) as dev_corpus_file:
-      dev_dataset = VictorNLPDataset(json.load(dev_corpus_file), [preprocessor_WordCount, preprocessor_DependencyParsing])
+      dev_dataset = VictorNLPDataset(json.load(dev_corpus_file), preprocessors)
   else:
     if train_dev_ratio and train_dev_ratio < 1.:
       split = random_split(train_dataset, [int(len(train_dataset) * train_dev_ratio), len(train_dataset) - int(len(train_dataset)*train_dev_ratio)])

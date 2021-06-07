@@ -103,7 +103,9 @@ def main():
   # Prepare evaluation data if file is given
   from_file = bool(args.data_file)
   pos_tagger = pos_taggers[language]
-  preprocessors = [preprocessor_WordCount, pos_tagger, preprocessor_DependencyParsing]
+  assert language_config['preprocessors'][0] == 'word-count'
+  preprocessors = [dataset_preprocessors[alias] for alias in language_config['preprocessors']]
+  preprocessors.insert(1, pos_tagger)
 
   if from_file:
     with open(args.data_file, 'r') as data_file:
