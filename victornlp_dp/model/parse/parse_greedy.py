@@ -14,20 +14,21 @@ import torch.nn as nn
 from . import register_parse_fn
 
 @register_parse_fn('greedy')
-def parse_greedy(parser, inputs, config):
+def parse_greedy(parser, inputs, config, **kwargs):
   """
   Simple argmax parsing. No topologocal restrictions are applied during parsing, thus may generate improper structures. Use for testing.
   
   @param parser *Parser object. Refer to '*_parser.py' for more details.
   @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
   @param config Dictionary config file accessed with 'parse' key.
+  @param **kwargs Passed to parser.run().
   
   @return 'inputs' dictionary with parse tree information added.
   """
   device = next(parser.parameters()).device
   batch_size = len(inputs)
   
-  arc_attention, type_attention = parser.run(inputs)
+  arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   for i, input in enumerate(inputs):
     result = []

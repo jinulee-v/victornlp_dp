@@ -4,20 +4,21 @@ import torch.nn as n
 from . import register_parse_fn
 
 @register_parse_fn('beam')
-def parse_beam(parser, inputs, config):
+def parse_beam(parser, inputs, config, **kwargs):
   """
   Beam search implemented in Stack-Pointer Network(Ma, 2018) and Left-To-Right parser(Fernandez-Gonzalez, 2019).
   
   @param parser *Parser object. Refer to '*_parser.py' for more details.
   @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
   @param config Dictionary config file accessed with 'parse' key.
+  @param **kwargs Passed to parser.run().
   
   @return 'inputs' dictionary with parse tree information added.
   """
   device = next(parser.parameters()).device
   batch_size = len(inputs)
   
-  arc_attention, type_attention = parser.run(inputs)
+  arc_attention, type_attention = parser.run(inputs, **kwargs)
 
   head_initial = config['head_initial']
   head_final = config['head_final']

@@ -11,7 +11,7 @@ import torch.nn as nn
 from . import register_loss_fn
 
 @register_loss_fn('local-nll')
-def loss_NLL(parser, inputs):
+def loss_NLL(parser, inputs, **kwargs):
   """
   Negative Log-Likelihood loss function.
   
@@ -19,11 +19,12 @@ def loss_NLL(parser, inputs):
   
   @param parser *Parser object. Refer to '*_parser.py' for more details.
   @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
+  @param **kwargs Passed to parser.run().
   """
   device = next(parser.parameters()).device
   batch_size = len(inputs)
   
-  arc_attention, type_attention = parser.run(inputs)
+  arc_attention, type_attention = parser.run(inputs, **kwargs)
   lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
   for i, input in enumerate(inputs):
     lengths[i] = input['word_count'] + 1
@@ -42,17 +43,18 @@ def loss_NLL(parser, inputs):
   return -(torch.sum(loss_arc) + torch.sum(loss_type)) / (torch.sum(lengths) - batch_size)
 
 @register_loss_fn('local-xbce')
-def loss_XBCE(parser, inputs):
+def loss_XBCE(parser, inputs, **kwargs):
   """
   eXpanded Binary Cross Entropy loss function.
   
   @param parser *Parser object. Refer to 'model.py' for more details.
   @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
+  @param **kwargs Passed to parser.run().
   """
   device = next(parser.parameters()).device
   batch_size = len(inputs)
   
-  arc_attention, type_attention = parser.run(inputs)
+  arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
   for i, input in enumerate(inputs):
@@ -81,17 +83,18 @@ def loss_XBCE(parser, inputs):
   return -(loss_arc + loss_type) / (torch.sum(lengths) - batch_size)
   
 @register_loss_fn('local-lh')
-def loss_LH(parser, inputs):
+def loss_LH(parser, inputs, **kwargs):
   """
   Local Hinge loss function.
   
   @param parser *Parser object. Refer to 'model.py' for more details.
   @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
+  @param **kwargs Passed to parser.run().
   """
   device = next(parser.parameters()).device
   batch_size = len(inputs)
   
-  arc_attention, type_attention = parser.run(inputs)
+  arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
   for i, input in enumerate(inputs):
