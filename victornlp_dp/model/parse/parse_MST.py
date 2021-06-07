@@ -14,7 +14,7 @@ import torch.nn as nn
 from . import register_parse_fn
 
 @register_parse_fn('mst')
-def parse_MST(parser, inputs, config):
+def parse_MST(parser, inputs, config, **kwargs):
   """
   Wrapper function for Projective / Nonprojective / Head-Initial/Final MST Algorithms.
   Projective : Eisner Algorithm
@@ -25,6 +25,7 @@ def parse_MST(parser, inputs, config):
     @param parser *Parser object. Refer to '*_parser.py' for more details.
   @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
   @param config Dictionary config file accessed with 'parse' key.
+  @param **kwargs Passed to parser.run().
   
   @return 'inputs' dictionary with parse tree information added.
   """
@@ -37,12 +38,12 @@ def parse_MST(parser, inputs, config):
     if head_initial or head_final:
       raise "MST for projective & head-initial/final trees are not supported."
     else:
-      inputs = _parse_MST_Eisner(parser, inputs, config)
+      inputs = _parse_MST_Eisner(parser, inputs, config, **kwargs)
   else:
     if head_initial or head_final:
-      inputs = _parse_MST_DP(parser, inputs, config)
+      inputs = _parse_MST_DP(parser, inputs, config, **kwargs)
     else:
-      inputs = _parse_MST_ChuLiuEdmonds(parser, inputs, config)
+      inputs = _parse_MST_ChuLiuEdmonds(parser, inputs, config, **kwargs)
   
   return inputs
 
@@ -89,7 +90,7 @@ def _backtrack_eisner(incomplete_backtrack, complete_backtrack, s, t, direction,
       _backtrack_eisner(incomplete_backtrack, complete_backtrack, r+1, t, 0, 1, heads)
       return
 
-def _parse_MST_Eisner(parser, inputs, config):
+def _parse_MST_Eisner(parser, inputs, config, **kwargs,):
   """
   Implementation of Eisner Algorithm(Eisner, 1996) which is capable of generating non-projective MST for a sequence.
   
@@ -106,7 +107,7 @@ def _parse_MST_Eisner(parser, inputs, config):
   device = next(parser.parameters()).device
   batch_size = len(inputs)
   
-  arc_attention, type_attention = parser.run(inputs)
+  arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   for i, input in enumerate(inputs):
     num_words = input['word_count']
@@ -176,7 +177,7 @@ def _parse_MST_Eisner(parser, inputs, config):
 
 ####################
 
-def _parse_MST_ChuLiuEdmonds(parser, inputs, config):
+def _parse_MST_ChuLiuEdmonds(parser, inputs, config, **kwargs):
   """
   Implementation of Chu-Liu(Edmonds) Algorithm(Chu&Liu, 1965; Edmonds, 1967) which is capable of generating projective MST for a sequence.
   
@@ -187,6 +188,7 @@ def _parse_MST_ChuLiuEdmonds(parser, inputs, config):
     @param parser *Parser object. Refer to '*_parser.py' for more details.
   @param inputs List of dictionaries. Refer to 'corpus.py' for more details.
   @param config Dictionary config file accessed with 'parse' key.
+  @param **kwargs Passed to parser.run().
   
   @return 'inputs' dictionary with parse tree information added.
   """
@@ -337,7 +339,7 @@ def _parse_MST_ChuLiuEdmonds(parser, inputs, config):
 
   batch_size = len(inputs)
   
-  arc_attention, type_attention = parser.run(inputs)
+  arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   for i, input in enumerate(inputs):
     length = input['word_count'] + 1
