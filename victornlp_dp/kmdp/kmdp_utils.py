@@ -20,29 +20,34 @@ def generate_kmdp_lengths_mask(inputs, device):
   lengths = torch.zeros(batch_size, dtype=torch.long, device=device).detach()
   max_len = 0
   for i, input in enumerate(inputs):
-    length = len(input['pos'])+1 # +1 for ROOT
-    assert length == input['pos'][-1]['id']
+    length = input['pos'][-1][-1]['id'] + 1
     lengths[i] = length
     if max_len < length:
       max_len = length
   
   mask = torch.zeros(batch_size, 1, max_len, max_len, device=device).detach()
   for i, input in enumerate(inputs):
-    length = len(input['pos'])+1
-    mask[i, 0, 1:length, 0] = 1
-    for morph in input['pos']:
-      if morph['pos_tag'] in label2head['all_heads']:
-        id = morph['id']
-        mask[i, 0, id, :] = 1
-        mask[i, 0, 1:length, i] = 1
+    length = input['pos'][-1][-1]['id'] + 1
+    ids = []
+    for wp in input['pos']:
+      for morph in wp:
+        if morph['pos_tag'] in label2head['all_heads']:
+          ids.append(morph['id'])
+    mask[i, 0, ids, 0] = 1
+    for id in ids:
+      mask[i, 0, id, ids] = 1
+      mask[i, 0, ids, id] = 1
   
   return lengths, mask
 
 @register_preprocessors('kmdp')
 def prerocessor_ReplaceKMDP(inputs):
   for input in inputs:
-    # Force replace dependency as kmdp
+    assert input['text']
+    assert input['pos']
+    assert len(input['pos']) == input['word_count']
+
     input['dependency'] = input['kmdp']
     input.pop('kmdp')
   
-  return input
+  return inputs

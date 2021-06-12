@@ -25,9 +25,13 @@ def loss_NLL(parser, inputs, **kwargs):
   batch_size = len(inputs)
   
   arc_attention, type_attention = parser.run(inputs, **kwargs)
-  lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
-  for i, input in enumerate(inputs):
-    lengths[i] = input['word_count'] + 1
+
+  if 'lengths' not in kwargs:
+    lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
+    for i, input in enumerate(inputs):
+      lengths[i] = input['word_count'] + 1
+  else:
+    lengths = kwargs['lengths']
   max_length = torch.max(lengths)
 
   golden_heads = torch.zeros((batch_size, max_length, 1), dtype=torch.long).detach().to(device)
@@ -56,9 +60,12 @@ def loss_XBCE(parser, inputs, **kwargs):
   
   arc_attention, type_attention = parser.run(inputs, **kwargs)
   
-  lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
-  for i, input in enumerate(inputs):
-    lengths[i] = input['word_count'] + 1
+  if 'lengths' not in kwargs:
+    lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
+    for i, input in enumerate(inputs):
+      lengths[i] = input['word_count'] + 1
+  else:
+    lengths = kwargs['lengths']
   max_length = torch.max(lengths)
 
   golden_heads = torch.zeros((batch_size, max_length, 1), dtype=torch.long).detach().to(device)
@@ -96,9 +103,12 @@ def loss_LH(parser, inputs, **kwargs):
   
   arc_attention, type_attention = parser.run(inputs, **kwargs)
   
-  lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
-  for i, input in enumerate(inputs):
-    lengths[i] = input['word_count'] + 1
+  if 'lengths' not in kwargs:
+    lengths = torch.zeros(batch_size, dtype=torch.long).detach().to(device)
+    for i, input in enumerate(inputs):
+      lengths[i] = input['word_count'] + 1
+  else:
+    lengths = kwargs['lengths']
   max_length = torch.max(lengths)
 
   golden_heads = torch.zeros((batch_size, max_length, 1), dtype=torch.long).detach().to(device)
