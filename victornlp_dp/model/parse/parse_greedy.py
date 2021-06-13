@@ -29,12 +29,22 @@ def parse_greedy(parser, inputs, config, **kwargs):
   batch_size = len(inputs)
   
   arc_attention, type_attention = parser.run(inputs, **kwargs)
+  if 'mask' in kwargs:
+    mask = (1 - kwargs['mask']) * 1e6
+    arc_attention = arc_attention - mask
+    type_attention = type_attention - mask
   
   for i, input in enumerate(inputs):
     result = []
-    length = input['word_count'] + 1
+    if 'lengths' not in kwargs:
+      length = input['word_count'] + 1
+    else:
+      length = kwargs['lengths'][i]
     for dep in range(1, length):
-      head = torch.argmax(arc_attention[i][0][dep][:length]).item()
+      if 'mask' in kwargs:
+        if kwargs['mask'][i][0][dep][0] == 0:
+          continue
+      head = torch.argmax(arc_attention[i, 0, dep, :length]).item()
       label = parser.labels[torch.argmax(type_attention[i, :, dep, head]).reshape(-1)]
       result.append({
         'dep': dep,

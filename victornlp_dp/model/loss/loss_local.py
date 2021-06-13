@@ -38,8 +38,9 @@ def loss_NLL(parser, inputs, **kwargs):
   golden_labels = torch.zeros((batch_size, 1, max_length, max_length), dtype=torch.long).detach().to(device)
   for i, input in enumerate(inputs):
     for j, arc in enumerate(input['dependency']):
-      golden_heads[i, j+1, 0] = arc['head']
-      golden_labels[i, 0, j+1, :] = parser.labels_stoi[arc['label']]
+      dep = arc['dep']
+      golden_heads[i, dep, 0] = arc['head']
+      golden_labels[i, 0, dep, :] = parser.labels_stoi[arc['label']]
   
   loss_arc = arc_attention.squeeze(1).gather(2, golden_heads).squeeze(2)
   loss_type = type_attention.gather(1, golden_labels).squeeze(1).gather(2, golden_heads).squeeze(2)
@@ -68,19 +69,33 @@ def loss_XBCE(parser, inputs, **kwargs):
     lengths = kwargs['lengths']
   max_length = torch.max(lengths)
 
-  golden_heads = torch.zeros((batch_size, max_length, 1), dtype=torch.long).detach().to(device)
-  golden_labels = torch.zeros((batch_size, 1, max_length, max_length), dtype=torch.long).detach().to(device)
-  golden_head_mask = torch.zeros_like(arc_attention, dtype=torch.float).detach().to(device)
-  golden_label_mask = torch.zeros_like(type_attention, dtype=torch.float).detach().to(device)
-  for i, input in enumerate(inputs):
-    for j, arc in enumerate(input['dependency']):
-      golden_heads[i, j+1, 0] = arc['head']
-      golden_labels[i, 0, j+1, :] = parser.labels_stoi[arc['label']]
-      golden_head_mask[i, 0, j+1, :lengths[i]] = 1
-      golden_head_mask[i, 0, j+1, arc['head']] = 0
-      golden_label_mask[i, :, j+1, arc['head']] = 1
-      golden_label_mask[i, parser.labels_stoi[arc['label']], j+1, arc['head']] = 0
-  
+  if 'mask' not in kwargs:
+    golden_heads = torch.zeros((batch_size, max_length, 1), dtype=torch.long).detach().to(device)
+    golden_labels = torch.zeros((batch_size, 1, max_length, max_length), dtype=torch.long).detach().to(device)
+    golden_head_mask = torch.zeros_like(arc_attention, dtype=torch.float).detach().to(device)
+    golden_label_mask = torch.zeros_like(type_attention, dtype=torch.float).detach().to(device)
+    for i, input in enumerate(inputs):
+      for j, arc in enumerate(input['dependency']):
+        dep = arc['dep']
+        golden_heads[i, dep, 0] = arc['head']
+        golden_labels[i, 0, dep, :] = parser.labels_stoi[arc['label']]
+        golden_head_mask[i, 0, dep, :lengths[i]] = 1
+        golden_head_mask[i, 0, dep, arc['head']] = 0
+        golden_label_mask[i, :, dep, arc['head']] = 1
+        golden_label_mask[i, parser.labels_stoi[arc['label']], dep, arc['head']] = 0
+  else:
+    golden_heads = torch.zeros((batch_size, max_length, 1), dtype=torch.long).detach().to(device)
+    golden_labels = torch.zeros((batch_size, 1, max_length, max_length), dtype=torch.long).detach().to(device)
+    golden_head_mask = kwargs['mask'].clone().detach().to(device)
+    golden_label_mask = kwargs['mask'].clone().repeat(1, len(parser.labels), 1, 1).detach().to(device)
+    for i, input in enumerate(inputs):
+      for j, arc in enumerate(input['dependency']):
+        dep = arc['dep']
+        golden_heads[i, dep, 0] = arc['head']
+        golden_labels[i, 0, dep, :] = parser.labels_stoi[arc['label']]
+        golden_head_mask[i, 0, dep, arc['head']] = 0
+        golden_label_mask[i, parser.labels_stoi[arc['label']], dep, arc['head']] = 0  
+
   loss_arc = torch.sum(arc_attention.squeeze(1).gather(2, golden_heads).squeeze(2))
   loss_arc += torch.sum(torch.log(1+(1e-6)-torch.exp(arc_attention)) * golden_head_mask)
   
@@ -117,12 +132,13 @@ def loss_LH(parser, inputs, **kwargs):
   golden_label_mask = torch.ones_like(type_attention, dtype=torch.float).detach().to(device)
   for i, input in enumerate(inputs):
     for j, arc in enumerate(input['dependency']):
-      golden_heads[i, j+1, 0] = arc['head']
-      golden_labels[i, 0, j+1, :] = parser.labels_stoi[arc['label']]
-      golden_head_mask[i, 0, j+1, :lengths[i]] = 0
-      golden_head_mask[i, 0, j+1, arc['head']] = 1
-      golden_label_mask[i, :, j+1, arc['head']] = 0
-      golden_label_mask[i, parser.labels_stoi[arc['label']], j+1, arc['head']] = 1
+      dep = arc['dep']
+      golden_heads[i, dep, 0] = arc['head']
+      golden_labels[i, 0, dep, :] = parser.labels_stoi[arc['label']]
+      golden_head_mask[i, 0, dep, :lengths[i]] = 1
+      golden_head_mask[i, 0, dep, arc['head']] = 0
+      golden_label_mask[i, :, dep, arc['head']] = 1
+      golden_label_mask[i, parser.labels_stoi[arc['label']], dep, arc['head']] = 0
   
   golden_head_scores = arc_attention.squeeze(1).gather(2, golden_heads).squeeze(2)
   hinge_head_scores = torch.max((arc_attention - golden_head_mask * 100000).squeeze(1), dim=2)[0]

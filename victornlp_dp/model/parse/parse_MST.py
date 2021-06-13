@@ -110,7 +110,10 @@ def _parse_MST_Eisner(parser, inputs, config, **kwargs,):
   arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   for i, input in enumerate(inputs):
-    num_words = input['word_count']
+    if 'lengths' not in kwargs:
+      num_words = input['word_count']
+    else:
+      num_words = kwargs['lengths'][i] -1
     scores = arc_attention[i, 0, :num_words+1, :num_words+1].transpose(0, 1)
 
     # Initialize CKY table.
@@ -342,7 +345,10 @@ def _parse_MST_ChuLiuEdmonds(parser, inputs, config, **kwargs):
   arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   for i, input in enumerate(inputs):
-    length = input['word_count'] + 1
+    if 'lengths' not in kwargs:
+      length = input['word_count'] + 1
+    else:
+      length = kwargs['lengths'][i]
     
     # get original score matrix
     arc_att = arc_attention[i, 0, :length, :length].transpose(0,1).cpu()

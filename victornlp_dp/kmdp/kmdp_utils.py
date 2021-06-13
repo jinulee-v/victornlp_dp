@@ -35,7 +35,6 @@ def generate_kmdp_lengths_mask(inputs, device):
           ids.append(morph['id'])
     mask[i, 0, ids, 0] = 1
     for id in ids:
-      mask[i, 0, id, ids] = 1
       mask[i, 0, ids, id] = 1
   
   return lengths, mask
