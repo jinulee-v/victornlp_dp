@@ -6,7 +6,7 @@ Implementation of Left-To-Right Parser(Fernandez-Gonzalez, 2019)
 import torch
 import torch.nn as nn
 
-from .module import *
+from ...victornlp_utils.module import *
 
 from . import register_model
 
