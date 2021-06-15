@@ -106,11 +106,9 @@ class DeepBiaffineParser(nn.Module):
   
     arc_attention = arc_attention - ((1-mask) * 100000)
     arc_attention = nn.functional.log_softmax(arc_attention, 3)
-    arc_attention = arc_attention * mask
   
     type_attention = type_attention - ((1-mask) * 100000)
     type_attention = nn.functional.log_softmax(type_attention, 1)
-    type_attention = type_attention * mask
     
     return arc_attention, type_attention
     
