@@ -6,7 +6,7 @@ Implementation of Deep Biaffine Parser(Dozat, 2018)
 import torch
 import torch.nn as nn
 
-from .module import *
+from ...victornlp_utils.module import *
 
 from . import register_model
 
