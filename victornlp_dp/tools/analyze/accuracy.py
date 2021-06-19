@@ -22,7 +22,8 @@ def analyze_accuracy(inputs):
     assert 'dependency_predict' in input
 
     for golden, predict in zip(input['dependency'], input['dependency_predict']):
-      assert predict['dep'] == golden['dep']
+      if predict['dep'] != golden['dep']:
+        continue
       total += 1
       if predict['head'] == golden['head']:
         unlabel += 1

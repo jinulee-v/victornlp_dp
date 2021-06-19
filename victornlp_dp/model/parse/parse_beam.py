@@ -34,7 +34,10 @@ def parse_beam(parser, inputs, config, **kwargs):
 
     arc_att = torch.squeeze(arc_attention[i].clone(), 0)
 
-    length = input['word_count'] + 1
+    if 'lengths' not in kwargs:
+      length = input['word_count'] + 1
+    else:
+      length = kwargs['lengths'][i]
     for dep_id in range(1, length):
       new_scores = beam_scores.unsqueeze(0) + arc_att[dep_id].unsqueeze(1)
       new_scores, indices = torch.sort(new_scores.view(-1), descending=True)

@@ -110,7 +110,10 @@ def _parse_MST_Eisner(parser, inputs, config, **kwargs,):
   arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   for i, input in enumerate(inputs):
-    num_words = input['word_count']
+    if 'lengths' not in kwargs:
+      num_words = input['word_count']
+    else:
+      num_words = kwargs['lengths'][i] -1
     scores = arc_attention[i, 0, :num_words+1, :num_words+1].transpose(0, 1)
 
     # Initialize CKY table.
@@ -342,7 +345,10 @@ def _parse_MST_ChuLiuEdmonds(parser, inputs, config, **kwargs):
   arc_attention, type_attention = parser.run(inputs, **kwargs)
   
   for i, input in enumerate(inputs):
-    length = input['word_count'] + 1
+    if 'lengths' not in kwargs:
+      length = input['word_count'] + 1
+    else:
+      length = kwargs['lengths'][i]
     
     # get original score matrix
     arc_att = arc_attention[i, 0, :length, :length].transpose(0,1).cpu()
@@ -357,8 +363,17 @@ def _parse_MST_ChuLiuEdmonds(parser, inputs, config, **kwargs):
     for s in range(length):
       arc_att[s, s] = float("-inf")
       score_matrix[s, s] = float("-inf")
-      curr_nodes[s] = True
       reps.append(set())
+      if 'mask' in kwargs:
+        if s == 0 or kwargs['mask'][i, 0, s, 0] == 1:
+          curr_nodes[s] = True
+        else:
+          curr_nodes[s] = False
+          continue
+      else:
+        curr_nodes[s] = True
+        score_matrix[s, :] = float("-inf")
+        score_matrix[:, s] = float("-inf")
       reps[s].add(s)
       for t in range(s + 1, length):
         oldI[s, t] = s
@@ -385,6 +400,9 @@ def _parse_MST_ChuLiuEdmonds(parser, inputs, config, **kwargs):
     for dep_id, (head_id, type_id) in enumerate(zip(heads, types)): # FIXME
       if dep_id == 0:
         continue
+      if 'mask' in kwargs:
+        if kwargs['mask'][i, 0, dep_id, 0] == 0:
+          continue
       result.append({'dep': dep_id, 'head': head_id, 'label': parser.labels[type_id]})
     if 'dependency' in input:
       key = 'dependency_predict'
