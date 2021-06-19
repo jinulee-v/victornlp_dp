@@ -29,10 +29,10 @@ def parse_greedy(parser, inputs, config, **kwargs):
   batch_size = len(inputs)
   
   arc_attention, type_attention = parser.run(inputs, **kwargs)
-  if 'mask' in kwargs:
-    mask = (1 - kwargs['mask']) * 1e6
-    arc_attention = arc_attention - mask
-    type_attention = type_attention - mask
+  # if 'mask' in kwargs:
+  #   mask = (1 - kwargs['mask']) * 1e6
+  #   arc_attention = arc_attention - mask
+  #   type_attention = type_attention - mask
   
   for i, input in enumerate(inputs):
     result = []
