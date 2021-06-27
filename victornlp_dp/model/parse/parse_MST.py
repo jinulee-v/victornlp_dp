@@ -372,8 +372,6 @@ def _parse_MST_ChuLiuEdmonds(parser, inputs, config, **kwargs):
           continue
       else:
         curr_nodes[s] = True
-        score_matrix[s, :] = float("-inf")
-        score_matrix[:, s] = float("-inf")
       reps[s].add(s)
       for t in range(s + 1, length):
         oldI[s, t] = s
