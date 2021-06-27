@@ -39,7 +39,7 @@ from .victornlp_utils.pos_tagger import pos_taggers
 from .victornlp_utils.utils.early_stopping import EarlyStopping
 
 from .model.model import dp_model
-from .model.loss import dp_losS_fn
+from .model.loss import dp_loss_fn
 from .model.parse import dp_parse_fn
 from .tools.analyze import dp_analysis_fn
 
@@ -48,7 +48,7 @@ def parse_cmd_arguments():
   parser.add_argument('model_dir', type=str, help='Model directory that contains model.pt & config.json.')
   parser.add_argument('--data-file', type=str, help='File that contains VictorNLP format data. default: stdin(only raw texts)')
   parser.add_argument('-a', '--analyze', type=str, action='append', choices=dp_analysis_fn)
-  parser.add_argument('--save-result', help='Print VictorNLP-format results to a file.')
+  parser.add_argument('--save-result', type=str, help='Print VictorNLP-format results to a file.')
 
   args = parser.parse_args()
   return args
@@ -65,6 +65,8 @@ def main():
   
   train_config = config['train']
   language_config = config['language'][train_config['language']]
+  # Command line arguments override basic language configurations
+  embeddings_list = train_config['embedding']
   embedding_config = config['embedding']
   parser_config = config['parser'][train_config['model']]
   
@@ -133,7 +135,7 @@ def main():
       # From file data
 
       # Parse and log time
-      before = datetime.now4()
+      before = datetime.now()
       logger.info('Started at...' + before.strftime(u'%Y%m%d %H:%M:%S'))
       for batch in tqdm(loader):
         parse_fn(parser, batch, language_config['parse'])
@@ -144,27 +146,26 @@ def main():
       logger.info('')
 
       # Run analysis functions
-      if not args.analyze:
-        return
-      analyzers = {name:dp_analysis_fn[name] for name in args.analyze}
-      for analyzer in analyzers:
-        result = analyzer(dataset)
-        logger.info('-'*40)
-        logger.info(name)
-        if isinstance(result, dict):
-          # Dictionary results
-          for key, value in result.items():
-            logger.info('  {}: {}'.format(key, value))
-        else:
-          # Text results(TSV, pd.dataframe, ...)
-          logger.info('\n' + str(result))
-        logger.info('-'*40)
-        logger.info('')
+      if args.analyze:
+        analyzers = {name:dp_analysis_fn[name] for name in args.analyze}
+        for analyzer in analyzers:
+          result = analyzer(dataset)
+          logger.info('-'*40)
+          logger.info(name)
+          if isinstance(result, dict):
+            # Dictionary results
+            for key, value in result.items():
+              logger.info('  {}: {}'.format(key, value))
+          else:
+            # Text results(TSV, pd.dataframe, ...)
+            logger.info('\n' + str(result))
+          logger.info('-'*40)
+          logger.info('')
 
       # Save result if needed
       if args.save_result:
-        with open(args.model_dir + 'parse_result_{}.log'.format(now), 'w') as out_file:
-          json.dump(inputs, out_file, indent=4)
+        with open(args.save_result if args.save_result else args.model_dir + 'parse_result_{}.json'.format(now), 'w') as out_file:
+          json.dump(dataset._data, out_file, indent=4, ensure_ascii=False)
 
     else:
       # From stdin

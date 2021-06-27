@@ -2,12 +2,12 @@
   "language": {
     "korean": {
       "corpus": {
-        "train": "corpus/VictorNLP_kor(ModuKMDP)_train.json",
-        "dev": "corpus/VictorNLP_kor(ModuKMDP)_dev.json",
-        "test": "corpus/VictorNLP_kor(ModuKMDP)_test.json",
-        "labels": "corpus/VictorNLP_kor(ModuKMDP)_labels.json"
+        "train": "corpus/VictorNLP_kor(Modu)_train.json",
+        "dev": "corpus/VictorNLP_kor(Modu)_dev.json",
+        "test": "corpus/VictorNLP_kor(Modu)_test.json",
+        "labels": "corpus/VictorNLP_kor(Modu)_labels.json"
       },
-      "embedding": ["glove-wp-kor", "pos-wp-kor"],
+      "embedding": ["glove-wp-kor"],
       "preprocessors": ["word-count", "dependency-parsing"],
       "parse": {
         "head_initial": 0,
@@ -34,7 +34,7 @@
     }
   },
   "embedding": {
-    "pos-morph-kor": {
+    "pos-wp-kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingPoS_kor.json",
       "key": "pos_tag",
       "from_pretrained": 0,
@@ -46,7 +46,7 @@
         "pad": "<pad>"
       }
     },
-    "glove-morph-kor": {
+    "glove-wp-kor": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingGloVe_kor.json",
       "key": "joined",
       "from_pretrained": 1,
@@ -59,7 +59,7 @@
     },
     "etri-korbert": {
       "file_directory": "victornlp_dp/victornlp_utils/embedding/data/EmbeddingBERTMorph_kor",
-      "word_phrase": 0,
+      "word_phrase": 1,
       "train": 0,
       "special_tokens": {
         "unk": "<unk>",
