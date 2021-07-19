@@ -34,7 +34,7 @@ from torch.optim import *
 from .victornlp_utils.corpora.dataset import *
 
 from .victornlp_utils.embedding import embeddings
-from .victornlp_utils.pos_tagger import pos_taggers
+# from .victornlp_utils.pos_tagger import pos_taggers
 
 from .victornlp_utils.utils.early_stopping import EarlyStopping
 
@@ -102,10 +102,10 @@ def main():
 
   # Prepare evaluation data if file is given
   from_file = bool(args.data_file)
-  pos_tagger = pos_taggers[language]
+  # pos_tagger = pos_taggers[language]
   assert language_config['preprocessors'][0] == 'word-count'
   preprocessors = [dataset_preprocessors[alias] for alias in language_config['preprocessors']]
-  preprocessors.insert(1, pos_tagger)
+  # preprocessors.insert(1, pos_tagger)
 
   if from_file:
     with open(args.data_file, 'r') as data_file:

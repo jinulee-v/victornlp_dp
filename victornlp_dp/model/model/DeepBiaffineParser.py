@@ -39,19 +39,19 @@ class DeepBiaffineParser(nn.Module):
     # Model layer (Bi-LSTM Encoder)
     self.encoder = nn.LSTM(input_size, self.hidden_size, config['encoder']['num_layers'], batch_first=True, dropout=config['encoder']['dropout'], bidirectional=True)
     
-    self.arc_encoder = nn.Sequential(
+    self.head_encoder = nn.Sequential(
       nn.Linear(self.hidden_size*2, config['arc_size']),
       nn.ELU(),
       nn.Dropout(config['encoder']['dropout'])
     )
-    self.type_encoder = nn.Sequential(
-      nn.Linear(self.hidden_size*2, config['type_size']),
+    self.dep_encoder = nn.Sequential(
+      nn.Linear(self.hidden_size*2, config['arc_size']),
       nn.ELU(),
       nn.Dropout(config['encoder']['dropout'])
     )
     
     self.arc_att = BilinearAttention(config['arc_size'], config['arc_size'], 1)
-    self.type_att = BilinearAttention(config['type_size'], config['type_size'],  len(labels))
+    self.type_att = BilinearAttention(config['arc_size'], config['arc_size'],  len(labels))
 
     # Prediction layer
     self.labels = labels  # type labels
@@ -89,10 +89,10 @@ class DeepBiaffineParser(nn.Module):
     encoder_h, _ = self.encoder(embedded)
 
     # Biaffine Attention
-    encoder_h_arc = self.arc_encoder(encoder_h)
-    encoder_h_type = self.type_encoder(encoder_h)
-    arc_attention = self.arc_att(encoder_h_arc, encoder_h_arc, lengths)
-    type_attention = self.type_att(encoder_h_type, encoder_h_type, lengths)
+    encoder_h_head = self.head_encoder(encoder_h)
+    encoder_h_dep = self.dep_encoder(encoder_h)
+    arc_attention = self.arc_att(encoder_h_head, encoder_h_dep, lengths)
+    type_attention = self.type_att(encoder_h_head, encoder_h_dep, lengths)
     
     # Masking & log_softmax
     if mask is None:

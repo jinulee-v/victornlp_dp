@@ -87,14 +87,13 @@
         "dropout": 0.2
       },
       "hidden_size": 512,
-      "arc_size": 128,
-      "type_size": 64
+      "arc_size": 128
     }
   },
   "train": {
     "language": "korean",
     "model": "deep-biaff-parser",
-    "loss_fn": "local-xbce",
+    "loss_fn": "local-nll",
     "parse_fn": "mst",
     "epoch": 100,
     "batch_size": 64,
