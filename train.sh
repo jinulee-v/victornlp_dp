@@ -4,9 +4,9 @@
 
 # Korean parser models: KMDP
 
-# Korean_DeepBiaffParser_KorBERT
+# Korean_DeepBiaffParser_GloVe
 python -m victornlp_dp.train \
-  --title KMDP_DeepBiaffParser_KorBERT \
+  --title KMDP_DeepBiaffParser_GloVe \
   --language korean \
   --model deep-biaff-parser \
   -e glove-morph-kor -e pos-morph-kor \
