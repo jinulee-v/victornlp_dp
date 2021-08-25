@@ -1,7 +1,7 @@
 import json
 
 
-with open('corpus/VictorNLP_kor(Modu)_labels.json', 'r', encoding='UTF-8') as labels_file:
+with open('corpus/VictorNLP_kor(ModuKMDP)_labels.json', 'r', encoding='UTF-8') as labels_file:
   _labels = json.load(labels_file)
 
 ###############################################################################
@@ -32,7 +32,7 @@ _AP_heads = [
 
 # Adjective-like ehads
 _DP_heads = [
-  'MMA', 'MMD', 'MMN', 'ETM'
+  'MMA', 'MMD', 'MMN', 'ETM', 'MM' # 'MM' is for Khaiii/KorBERT-correspondence
 ]
 
 # Independent phrase heads

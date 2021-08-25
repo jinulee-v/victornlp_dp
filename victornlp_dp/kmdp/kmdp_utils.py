@@ -40,13 +40,18 @@ def generate_kmdp_lengths_mask(inputs, device):
   return lengths, mask
 
 @register_preprocessors('kmdp')
-def prerocessor_ReplaceKMDP(inputs):
+def preprocessor_ReplaceKMDP(inputs):
+  new_inputs = []
   for input in inputs:
     assert input['text']
     assert input['pos']
-    assert len(input['pos']) == input['word_count']
+    if not len(input['pos']) == input['word_count']:
+      continue
 
-    input['dependency'] = input['kmdp']
-    input.pop('kmdp')
+    if 'kmdp' in input:
+      input['dependency'] = input['kmdp']
+      input.pop('kmdp')
+    
+    new_inputs.append(input)
   
-  return inputs
+  return new_inputs
