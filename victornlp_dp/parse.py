@@ -148,7 +148,7 @@ def main():
       # Run analysis functions
       if args.analyze:
         analyzers = {name:dp_analysis_fn[name] for name in args.analyze}
-        for analyzer in analyzers:
+        for name, analyzer in analyzers.items():
           result = analyzer(dataset)
           logger.info('-'*40)
           logger.info(name)
