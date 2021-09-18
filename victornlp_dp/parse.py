@@ -34,7 +34,7 @@ from torch.optim import *
 from .victornlp_utils.corpora.dataset import *
 
 from .victornlp_utils.embedding import embeddings
-from .victornlp_utils.pos_tagger import pos_taggers
+# from .victornlp_utils.pos_tagger import pos_taggers
 
 from .victornlp_utils.utils.early_stopping import EarlyStopping
 
@@ -43,14 +43,14 @@ from .model.loss import dp_loss_fn
 from .model.parse import dp_parse_fn
 from .tools.analyze import dp_analysis_fn
 
-from .kmdp.kmdp_utils import generate_kmdp_lengths_mask
+from .kmdp.kmdp_utils import *
 
 def parse_cmd_arguments():
   parser = argparse.ArgumentParser(description="Evaluate a model or parse raw texts.")
   parser.add_argument('model_dir', type=str, help='Model directory that contains model.pt & config.json.')
   parser.add_argument('--data-file', type=str, help='File that contains VictorNLP format data. default: stdin(only raw texts)')
   parser.add_argument('-a', '--analyze', type=str, action='append', choices=dp_analysis_fn)
-  parser.add_argument('--save-result', help='Print VictorNLP-format results to a file.')
+  parser.add_argument('--save-result', type=str, help='Print VictorNLP-format results to a file.')
 
   args = parser.parse_args()
   return args
@@ -67,6 +67,8 @@ def main():
   
   train_config = config['train']
   language_config = config['language'][train_config['language']]
+  # Command line arguments override basic language configurations
+  embeddings_list = train_config['embedding']
   embedding_config = config['embedding']
   parser_config = config['parser'][train_config['model']]
   
@@ -122,7 +124,6 @@ def main():
   # Create parser module
   logger.info('Preparing models...')
   device = torch.device(train_config['device'])
-  embeddings_list = language_config['embedding']
   embedding_objs = [embeddings[embedding_type](embedding_config[embedding_type]).to(device) for embedding_type in embeddings_list]
   parser = dp_model[parser_model](embedding_objs, type_label, parser_config)
   parser.load_state_dict(torch.load(args.model_dir + '/model.pt'))
@@ -151,7 +152,7 @@ def main():
       # Run analysis functions
       if args.analyze:
         analyzers = {name:dp_analysis_fn[name] for name in args.analyze}
-        for analyzer in analyzers:
+        for name, analyzer in analyzers.items():
           result = analyzer(dataset)
           logger.info('-'*40)
           logger.info(name)
