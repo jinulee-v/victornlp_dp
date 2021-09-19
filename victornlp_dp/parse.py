@@ -155,7 +155,7 @@ def main():
           if isinstance(result, dict):
             # Dictionary results
             for key, value in result.items():
-              logger.info('  {}: {}'.format(key, value))
+              logger.info('{}\t{}'.format(key, value))
           else:
             # Text results(TSV, pd.dataframe, ...)
             logger.info('\n' + str(result))

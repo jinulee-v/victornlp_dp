@@ -80,7 +80,10 @@ def analyze_accuracy_per_distance(inputs):
       if predict['dep'] != golden['dep']:
         continue
       
-      key = 'ROOT' if golden['head'] == 0 else abs(golden['head'] - golden['dep'])
+      if golden['head'] == 0:
+        key = 'ROOT'
+      else:
+        key = abs(golden['head'] - golden['dep'])
 
       if key not in total:
         total[key] = 0
