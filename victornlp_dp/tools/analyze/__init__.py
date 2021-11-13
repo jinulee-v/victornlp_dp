@@ -6,3 +6,4 @@ def register_analysis_fn(name):
   return decorator
 
 from .accuracy import *
+from .confidence import *
